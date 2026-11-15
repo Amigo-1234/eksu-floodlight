@@ -260,7 +260,7 @@ export async function uploadFacilityImage(facilityId: string, form: FormData): P
   const supabase = await createSupabaseServerClient();
   const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
   const path = `${facilityId}/${crypto.randomUUID()}.${ext}`;
-  const up = await supabase.storage.from("facility-images").upload(path, file, { contentType: file.type, upsert: false });
+  const up = await supabase.storage.from("floodlight-facility-images").upload(path, file, { contentType: file.type, upsert: false });
   if (up.error) return { ok: false, error: "Upload failed. Check that you manage this facility and storage is configured." };
   const { error } = await supabase.from("facility_images").insert({ facility_id: facilityId, storage_path: path, alt_text: alt });
   if (error) return fail(error);

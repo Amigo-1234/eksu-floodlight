@@ -9,8 +9,10 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --experimental-strip-types --no-warnings --test tests/unit/*.test.ts",
-    "test:db": "node --test --test-concurrency=1 tests/db/*.test.mjs",
-    "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts"
+    "test:db": "npm run db:bundle && node --test --test-concurrency=1 tests/db/*.test.mjs",
+    "db:bundle": "node scripts/build-db-bundle.mjs",
+    "test:coexist": "npm run db:bundle && FLOODLIGHT_COEXIST=1 node --test --test-concurrency=1 tests/db/*.test.mjs",
+    "test:sports-hub-regression": "bash tests/coexistence/regression.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.6",

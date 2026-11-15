@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { supabaseEnv } from "./env";
+import { DB_SCHEMA, supabaseEnv } from "./env";
 
 /** Per-request Supabase client acting as the signed-in user (RLS applies). */
 export async function createSupabaseServerClient() {
@@ -9,6 +9,7 @@ export async function createSupabaseServerClient() {
   if (!env.ok) throw new Error(env.error);
   const store = await cookies();
   return createServerClient(env.url, env.publishableKey, {
+    db: { schema: DB_SCHEMA },
     cookies: {
       getAll: () => store.getAll(),
       setAll: (list) => {

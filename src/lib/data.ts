@@ -121,5 +121,5 @@ export function facilityImageUrl(path: string | null): string | null {
   if (!path) return null;
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!base) return null;
-  return `${base.replace(/\/$/, "")}/storage/v1/object/public/facility-images/${path.split("/").map(encodeURIComponent).join("/")}`;
+  return `${base.replace(/\/$/, "")}/storage/v1/object/public/floodlight-facility-images/${path.split("/").map(encodeURIComponent).join("/")}`;
 }

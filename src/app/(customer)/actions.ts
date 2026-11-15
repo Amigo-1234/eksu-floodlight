@@ -85,6 +85,7 @@ export async function updateProfile(input: z.input<typeof profileSchema>): Promi
   const supabase = await createSupabaseServerClient();
   const { data: u } = await supabase.auth.getUser();
   if (!u.user) return { ok: false, error: "Please sign in.", code: "AUTH_REQUIRED" };
+  await supabase.rpc("ensure_profile");
   const { error } = await supabase.from("profiles")
     .update({ full_name: parsed.data.fullName, phone: parsed.data.phone || null }).eq("id", u.user.id);
   if (error) return { ok: false, error: friendlyError(error), code: errorCode(error) };

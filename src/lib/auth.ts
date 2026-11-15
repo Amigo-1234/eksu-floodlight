@@ -18,9 +18,11 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.auth.getUser();
   if (!data.user) return null;
+  // Floodlight keeps its own profile per user, created on first use (the auth
+  // service is shared with EKSU Sports Hub, which has its own profiles).
   const [{ data: roles }, { data: profile }] = await Promise.all([
     supabase.rpc("my_roles"),
-    supabase.from("profiles").select("full_name").eq("id", data.user.id).maybeSingle(),
+    supabase.rpc("ensure_profile"),
   ]);
   return {
     userId: data.user.id,

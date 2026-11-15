@@ -23,6 +23,13 @@ export function supabaseEnv(): SupabaseEnv {
   return { ok: true, url, publishableKey };
 }
 
+/**
+ * Floodlight's tables and functions live in their own Postgres schema so the
+ * app can share a Supabase project with EKSU Sports Hub without touching its
+ * objects. Every client below is pinned to this schema.
+ */
+export const DB_SCHEMA = "floodlight" as const;
+
 export function isBackendConfigured(): boolean {
   return supabaseEnv().ok;
 }

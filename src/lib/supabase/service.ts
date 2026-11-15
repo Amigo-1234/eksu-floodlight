@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
-import { supabaseEnv } from "./env";
+import { DB_SCHEMA, supabaseEnv } from "./env";
 
 /**
  * Service-role client. Used ONLY by the payment webhook to call
@@ -11,5 +11,5 @@ export function createServiceClient() {
   const env = supabaseEnv();
   const secret = process.env.SUPABASE_SECRET_KEY;
   if (!env.ok || !secret) return null;
-  return createClient(env.url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
+  return createClient(env.url, secret, { db: { schema: DB_SCHEMA }, auth: { persistSession: false, autoRefreshToken: false } });
 }

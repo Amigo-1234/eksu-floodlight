@@ -72,7 +72,8 @@ export function SignUpForm({ next, disabled }: { next: string; disabled?: boolea
     const redirect = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
     const { data, error } = await supabaseBrowser().auth.signUp({
       email: v.email, password: v.password,
-      options: { data: { full_name: v.fullName }, emailRedirectTo: redirect },
+      // display_name is read by the shared auth's EKSU Sports Hub profile trigger; full_name by Floodlight.
+      options: { data: { full_name: v.fullName, display_name: v.fullName }, emailRedirectTo: redirect },
     });
     if (error) return setError(authMessage(error.message));
     if (data.session) {
