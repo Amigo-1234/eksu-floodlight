@@ -14,8 +14,11 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <div className="sm:hidden"><Logo compact /></div>
         <div className="hidden sm:block"><Logo /></div>
-        <nav aria-label="Main" className="flex items-center gap-1">
+        <nav aria-label="Main" className="flex items-center gap-0.5 sm:gap-1">
           <Link href="/facilities" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-muted hover:text-ink sm:inline-flex">Facilities</Link>
+          <Link href="/facilities" aria-label="Facilities" className="inline-flex items-center rounded-lg px-2.5 py-2 text-muted hover:text-ink min-[401px]:hidden">
+            <LayoutGrid className="size-4" aria-hidden="true" />
+          </Link>
           <Link href="/schedule" className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted hover:text-ink">
             <CalendarDays className="size-4 sm:hidden" aria-hidden="true" /><span className="max-sm:sr-only">Schedule</span>
           </Link>
@@ -36,7 +39,7 @@ export async function SiteHeader() {
           ) : (
             <Link href="/sign-in" className={buttonClass("outline", "sm", "ml-1")}>Sign in</Link>
           )}
-          <Link href="/facilities" className={buttonClass("signal", "sm", "ml-1 max-[360px]:hidden")}>
+          <Link href="/facilities" className={buttonClass("signal", "sm", "ml-1 max-[400px]:hidden")}>
             <LayoutGrid className="size-4 sm:hidden" aria-hidden="true" />Book
           </Link>
         </nav>
@@ -66,19 +69,19 @@ export async function SiteFooter() {
           <p className="text-sm text-muted">{brand.tagline}</p>
           <p className="text-xs leading-relaxed text-faint">{brand.endorsementNotice}</p>
         </div>
-        <nav aria-label="Footer" className="flex flex-col gap-2 text-sm">
+        <nav aria-label="Footer" className="flex flex-col gap-0.5 text-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Explore</p>
-          <Link href="/facilities" className="text-ink/90 hover:text-signal">Facilities</Link>
-          <Link href="/schedule" className="text-ink/90 hover:text-signal">Schedule</Link>
-          <Link href="/policies" className="text-ink/90 hover:text-signal">Booking policies &amp; privacy</Link>
-          <Link href="/dashboard" className="text-ink/90 hover:text-signal">My bookings</Link>
+          <Link href="/facilities" className="inline-flex min-h-9 items-center text-ink/90 hover:text-signal">Facilities</Link>
+          <Link href="/schedule" className="inline-flex min-h-9 items-center text-ink/90 hover:text-signal">Schedule</Link>
+          <Link href="/policies" className="inline-flex min-h-9 items-center text-ink/90 hover:text-signal">Booking policies &amp; privacy</Link>
+          <Link href="/dashboard" className="inline-flex min-h-9 items-center text-ink/90 hover:text-signal">My bookings</Link>
         </nav>
         <div className="flex flex-col gap-2 text-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Support</p>
           {support.email || support.phone ? (
             <>
-              {support.email && <a href={`mailto:${support.email}`} className="text-ink/90 hover:text-signal">{support.email}</a>}
-              {support.phone && <a href={`tel:${support.phone.replace(/\s/g, "")}`} className="text-ink/90 hover:text-signal">{support.phone}</a>}
+              {support.email && <a href={`mailto:${support.email}`} className="inline-flex min-h-9 items-center text-ink/90 hover:text-signal">{support.email}</a>}
+              {support.phone && <a href={`tel:${support.phone.replace(/\s/g, "")}`} className="inline-flex min-h-9 items-center text-ink/90 hover:text-signal">{support.phone}</a>}
             </>
           ) : (
             <p className="text-muted">Support contact details will appear here once the facility managers publish them.</p>
@@ -93,8 +96,8 @@ export async function SiteFooter() {
 export function BackendNotice() {
   if (isBackendConfigured()) return null;
   return (
-    <div className="border-b border-warn/40 bg-warn/10 px-4 py-2.5 text-center text-sm text-warn" role="status">
-      Backend not connected: set the Supabase variables in <code className="font-mono">.env.local</code> to load facilities and bookings.
+    <div className="border-b border-warn/40 bg-warn/10 px-4 py-1.5 text-center text-xs text-warn sm:text-sm" role="status">
+      Backend not connected<span className="hidden sm:inline">: set the Supabase variables to load facilities and bookings</span>.
     </div>
   );
 }
