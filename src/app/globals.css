@@ -64,8 +64,10 @@
   --radius-card: 16px;
 }
 
-html { color-scheme: dark; }
+html { color-scheme: dark; background: var(--bg); min-height: 100%; }
+html:has(.theme-day) { background: #f5f4ee; }
 html:has(.theme-day) { color-scheme: light; }
+body { min-height: 100dvh; }
 
 body {
   background: var(--bg);

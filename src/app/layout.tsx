@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Big_Shoulders, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { brand } from "@/lib/brand";
+import { EnvironmentBanner, isTestEnvironment } from "@/components/site/EnvironmentBanner";
 import "./globals.css";
 
 const display = Big_Shoulders({ variable: "--font-big-shoulders", subsets: ["latin"], weight: ["700", "800"] });
@@ -11,18 +12,23 @@ export const metadata: Metadata = {
   title: { default: `${brand.name} — ${brand.descriptor}`, template: `%s · ${brand.name}` },
   description: `${brand.descriptor}. Find a sports facility, choose a time and book your next game.`,
   applicationName: brand.name,
+  robots: isTestEnvironment() ? { index: false, follow: false } : undefined,
 };
 
 export const viewport: Viewport = {
   themeColor: "#0b100f",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <EnvironmentBanner />
+        {children}
+      </body>
     </html>
   );
 }
