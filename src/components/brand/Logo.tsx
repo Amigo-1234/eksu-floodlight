@@ -1,31 +1,56 @@
 import Link from "next/link";
 import { brand } from "@/lib/brand";
 
-/** Original Floodlight mark: a mast with four lamps throwing light onto a pitch line. */
-export function LogoMark({ size = 32, className = "" }: { size?: number; className?: string }) {
+/**
+ * EKSU Floodlight mark — "Beam".
+ * A tilted floodlight head throws an amber beam down onto a pitch centre line.
+ * Original artwork (no university insignia). Works from 16px (favicon) up.
+ * The same geometry lives in src/app/icon.svg for the favicon.
+ */
+export function LogoMark({ size = 36, className = "", plain = false }: { size?: number; className?: string; plain?: boolean }) {
+  const id = `fl-mark-${size}`;
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" className={className}>
-      <rect width="32" height="32" rx="9" fill="var(--signal)" />
-      <g fill="var(--signal-ink)">
-        <rect x="7" y="6" width="3.5" height="3.5" rx="1" />
-        <rect x="11.5" y="6" width="3.5" height="3.5" rx="1" />
-        <rect x="7" y="10.5" width="3.5" height="3.5" rx="1" />
-        <rect x="11.5" y="10.5" width="3.5" height="3.5" rx="1" />
-        <path d="M10.2 14.5h2.1l1.2 11.5h-4.5z" />
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" className={className}>
+      <defs>
+        <linearGradient id={`${id}-bg`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#1c202b" />
+          <stop offset="1" stopColor="#08090d" />
+        </linearGradient>
+        <linearGradient id={`${id}-beam`} x1="0.2" y1="0" x2="0.75" y2="1">
+          <stop offset="0" stopColor="#ffd166" stopOpacity="0.95" />
+          <stop offset="1" stopColor="#ff9f1c" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={`${id}-lamp`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#fff1c2" />
+          <stop offset="1" stopColor="#ffc53d" />
+        </linearGradient>
+      </defs>
+      {!plain && <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="14" fill={`url(#${id}-bg)`} stroke="#ffc53d" strokeOpacity="0.32" strokeWidth="1.5" />}
+      <path d="M17.5 19.5 25 16.8 39 37.2 19.6 37.2Z" fill={`url(#${id}-beam)`} />
+      <g transform="rotate(-18 17.5 14)">
+        <rect x="9.5" y="9.5" width="16" height="9" rx="2.8" fill={`url(#${id}-lamp)`} />
+        <circle cx="13.6" cy="14" r="1.55" fill="#2a1d00" opacity="0.55" />
+        <circle cx="17.5" cy="14" r="1.55" fill="#2a1d00" opacity="0.55" />
+        <circle cx="21.4" cy="14" r="1.55" fill="#2a1d00" opacity="0.55" />
       </g>
-      <path d="M16.5 8.5 26 24M16.5 12.5 24 25" stroke="var(--signal-ink)" strokeWidth="1.6" strokeLinecap="round" opacity="0.55" />
-      <path d="M5 26.5h22" stroke="var(--signal-ink)" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M9 37.2h30" stroke="#f5f3ee" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M19.2 37.2a4.8 4.8 0 0 1 9.6 0" fill="none" stroke="#f5f3ee" strokeWidth="2.2" strokeLinecap="round" />
     </svg>
   );
 }
 
-export function Logo({ href = "/", compact = false }: { href?: string; compact?: boolean }) {
+/** Full lockup: mark + "EKSU" eyebrow + "Floodlight" wordmark. */
+export function Logo({ href = "/", compact = false, size = 36 }: { href?: string; compact?: boolean; size?: number }) {
   return (
-    <Link href={href} className="flex items-center gap-2.5" aria-label={`${brand.name} home`}>
-      <LogoMark />
+    <Link href={href} className="group flex items-center gap-2.5" aria-label={`${brand.name} home`}>
+      <span className="transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105">
+        <LogoMark size={size} />
+      </span>
       <span className="flex flex-col leading-none">
-        <span className="font-display text-[22px] tracking-wide">{compact ? brand.short : brand.name}</span>
-        {!compact && <span className="mt-0.5 hidden text-[10px] font-medium uppercase tracking-[0.14em] text-muted sm:block">Sports facility booking</span>}
+        {!compact && <span className="font-mono text-[9.5px] font-medium tracking-[0.32em] text-signal">EKSU</span>}
+        <span className="font-display text-[21px] tracking-[-0.04em]">
+          {compact ? <><span className="text-signal">EKSU</span> Floodlight</> : "Floodlight"}
+        </span>
       </span>
     </Link>
   );
