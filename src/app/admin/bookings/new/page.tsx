@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArtClipboard } from "@/components/brand/Illustrations";
 import { EmptyState } from "@/components/ui";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { StaffBookingForm } from "@/components/admin/StaffBookingForm";
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function NewStaffBooking(props: PageProps<"/admin/bookings/new">) {
   const ctx = await requireAdmin("/admin/bookings/new");
   const facility = pickFacility(ctx, (await props.searchParams).facility) ?? ctx.facilities[0]?.id;
-  if (!facility) return <EmptyState title="No facilities" body="You don't manage any facility yet." />;
+  if (!facility) return <EmptyState art={<ArtClipboard className="h-28 w-auto" />} title="No facilities yet" body="Create a facility first, then you can add bookings for it." />;
   return (
     <>
       <PageHeader title="New booking" description="Walk-in or staff-assisted reservation. The same overlap rules apply as for online bookings." />

@@ -27,11 +27,12 @@ export default async function BookPage(props: PageProps<"/book/[facilityId]">) {
   const defaultPrice = d.prices.find((p) => p.is_default) ?? null;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      <Link href={`/facilities/${d.facility.slug}`} className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink">
+    <div className="mx-auto w-full max-w-3xl px-4 py-8">
+      <Link href={`/facilities/${d.facility.slug}`} className="inline-flex items-center gap-1 text-sm font-bold text-muted transition-colors hover:text-signal">
         <ChevronLeft className="size-4" aria-hidden="true" />{d.facility.name}
       </Link>
-      <h1 className="font-display mt-2 text-5xl">Book a field</h1>
+      <p className="eyebrow mt-4">New booking</p>
+      <h1 className="font-display mt-2 text-5xl">Grab your <span className="text-beam">slot.</span></h1>
       {d.facility.is_dev_fixture && <div className="mt-2"><DevFixtureBadge /></div>}
 
       {!d.readiness.bookable ? (

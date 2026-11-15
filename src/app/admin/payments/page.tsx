@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArtClipboard } from "@/components/brand/Illustrations";
 import Link from "next/link";
 import { Chip, EmptyState, Notice } from "@/components/ui";
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -36,10 +37,10 @@ export default async function PaymentsPage() {
         </ul>
       </Notice>
       {ids.length === 0 ? <Notice tone="info">Only facility administrators can view payments.</Notice> : (txns.data ?? []).length === 0 ? (
-        <EmptyState title="No payments recorded" body="When staff record an offline payment, or an online payment is verified, it appears here." />
+        <EmptyState art={<ArtClipboard className="h-28 w-auto" />} title="No payments recorded" body="When staff record an offline payment, or an online payment is verified, it appears here." />
       ) : (
-        <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line bg-surface">
-          <table className="w-full min-w-[640px] text-sm">
+        <div className="overflow-x-auto panel">
+          <table className="data-table min-w-[640px]">
             <thead className="border-b border-line text-left text-xs text-muted">
               <tr><th className="px-3 py-2">Date</th><th className="px-3 py-2">Booking</th><th className="px-3 py-2">Source</th><th className="px-3 py-2">Amount</th><th className="px-3 py-2">Status</th></tr>
             </thead>
@@ -49,7 +50,7 @@ export default async function PaymentsPage() {
                 return (
                   <tr key={t.id}>
                     <td className="px-3 py-2 tabular">{formatDateTime(t.created_at)}</td>
-                    <td className="px-3 py-2"><Link href={`/admin/bookings/${t.booking_id}`} className="font-mono text-pitch hover:underline">{bk.reference}</Link></td>
+                    <td className="px-3 py-2"><Link href={`/admin/bookings/${t.booking_id}`} className="font-mono text-signal hover:underline">{bk.reference}</Link></td>
                     <td className="px-3 py-2">{t.provider === "offline" ? `Offline · ${t.method ?? ""}${t.receipt_number ? ` #${t.receipt_number}` : ""}` : "Paystack"}</td>
                     <td className="px-3 py-2 font-mono">{formatNaira(t.amount_kobo)}</td>
                     <td className="px-3 py-2"><Chip tone={t.status === "succeeded" ? "ok" : t.status === "failed" ? "danger" : "warn"}>{t.status}</Chip></td>
@@ -63,7 +64,7 @@ export default async function PaymentsPage() {
       {(refunds.data ?? []).length > 0 && (
         <section className="mt-8">
           <h2 className="font-display mb-3 text-2xl">Refund reviews</h2>
-          <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface text-sm">
+          <ul className="divide-y divide-line panel text-sm">
             {refunds.data!.map((r) => (
               <li key={r.id} className="flex justify-between gap-3 p-3">
                 <span className="font-mono">{(r.bookings as unknown as { reference: string }).reference}</span>

@@ -24,7 +24,7 @@ export default async function SettingsPage() {
       <Card className="mb-6 p-4"><SettingsForm initial={s} /></Card>
       <section>
         <h2 className="font-display mb-2 text-2xl">Recent audit log</h2>
-        <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface text-sm">
+        <ul className="divide-y divide-line panel text-sm">
           {(audit ?? []).map((a) => (
             <li key={a.id} className="flex flex-wrap justify-between gap-2 p-3">
               <span className="font-mono text-xs">{a.action}</span>

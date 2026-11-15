@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -115,9 +115,9 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
           <li key={label}>
             <button type="button" disabled={i > step || submitting} onClick={() => setStep(i)}
               aria-current={i === step ? "step" : undefined}
-              className={cx("flex w-full flex-col gap-1.5 text-left text-xs font-semibold",
+              className={cx("flex w-full flex-col gap-2 text-left text-xs font-bold transition-colors",
                 i === step ? "text-ink" : i < step ? "text-signal" : "text-faint")}>
-              <span className={cx("h-1 rounded-full", i <= step ? "bg-signal" : "bg-line")} aria-hidden="true" />
+              <span className={cx("h-1.5 rounded-full transition-all duration-500", i < step ? "bg-signal" : i === step ? "bg-signal shadow-[0_0_14px_var(--signal)]" : "bg-line")} aria-hidden="true" />
               <span className="flex items-center gap-1">{i < step && <Check className="size-3" aria-hidden="true" />}{label}</span>
             </button>
           </li>
@@ -138,9 +138,9 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
                 return (
                   <li key={d}>
                     <button type="button" onClick={() => setDay(d)} aria-pressed={on}
-                      className={cx("flex h-[76px] w-[62px] flex-col items-center justify-center rounded-2xl border transition-colors",
-                        on ? "border-signal bg-signal text-signal-ink" : "border-line bg-surface hover:border-muted")}>
-                      <span className="text-[11px] font-semibold uppercase">{d === today ? "Today" : l.weekday}</span>
+                      className={cx("flex h-[84px] w-[66px] flex-col items-center justify-center gap-1 rounded-[20px] border transition-all duration-200 active:scale-95",
+                        on ? "border-transparent bg-[linear-gradient(180deg,#ffd166,#ffc53d_50%,#ff9f1c)] text-signal-ink shadow-[0_12px_30px_-10px_rgb(255_197_61/0.8)]" : "border-line bg-surface hover:-translate-y-0.5 hover:border-signal/40")}>
+                      <span className="font-mono text-[10px] font-medium uppercase tracking-[0.12em]">{d === today ? "Today" : l.weekday}</span>
                       <span className="font-display text-[28px] leading-none tabular">{l.day}</span>
                       <span className="text-[11px]">{l.month}</span>
                     </button>
@@ -154,7 +154,7 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
             <label htmlFor="date-input">Or choose a date</label>
             <input id="date-input" type="date" min={today} max={days[days.length - 1]} value={day}
               onChange={(e) => e.target.value && setDay(e.target.value)}
-              className="h-10 rounded-lg border border-line bg-surface px-2 text-ink" />
+              className="h-10 rounded-xl border border-line-strong bg-[#090b0f] px-3 text-ink" />
           </div>
           <div className="mt-6 flex justify-end">
             <Button size="lg" onClick={() => { refresh(day); setStep(1); }}>See times for {formatDate(`${day}T12:00:00Z`, "UTC", "short")}</Button>
@@ -179,8 +179,8 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
             <div role="tablist" aria-label="Playing area" className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4">
               {surfaces.map((s) => (
                 <button key={s.id} role="tab" aria-selected={s.id === surfaceId} onClick={() => setSurfaceId(s.id)}
-                  className={cx("shrink-0 rounded-full border px-4 py-2 text-sm font-medium",
-                    s.id === surfaceId ? "border-signal bg-signal text-signal-ink" : "border-line bg-surface")}>
+                  className={cx("h-10 shrink-0 rounded-full border px-4 text-sm font-bold transition-colors",
+                    s.id === surfaceId ? "border-signal/60 bg-signal/[0.14] text-signal" : "border-line-strong text-muted hover:text-ink")}>
                   {s.name}
                 </button>
               ))}
@@ -188,36 +188,37 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
           )}
 
           <div className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted" aria-hidden="true">
-            <span className="flex items-center gap-1.5"><span className="size-3 rounded border-2 border-signal" />Free</span>
-            <span className="flex items-center gap-1.5"><span className="size-3 rounded border-2 border-dashed border-warn" />Requested</span>
-            <span className="flex items-center gap-1.5"><span className="size-3 rounded bg-raised" />Booked / closed</span>
+            <span className="flex items-center gap-1.5"><span className="size-3 rounded-md border border-signal bg-signal/20" />Free</span>
+            <span className="flex items-center gap-1.5"><span className="size-3 rounded-md border border-dashed border-warn" />Requested</span>
+            <span className="flex items-center gap-1.5"><span className="size-3 rounded-md border border-line bg-bg" />Booked / closed</span>
           </div>
 
           {slotError && <Notice tone="danger" className="mb-3">{slotError}</Notice>}
           {slots === null || (loading && slots.length === 0) ? (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-[68px]" />)}</div>
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-[74px] rounded-[20px]" />)}</div>
           ) : surfaceSlots.length === 0 ? (
             <Notice tone="info">The facility is closed on this day.</Notice>
           ) : (
             <>
-              <p className="mb-2 text-sm font-medium" aria-live="polite">{freeCount} of {surfaceSlots.length} slots free</p>
-              <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {surfaceSlots.map((s) => {
+              <p className="mb-3 text-sm font-bold" aria-live="polite"><span className="text-signal">{freeCount}</span> of {surfaceSlots.length} slots free</p>
+              <ul className="stagger grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {surfaceSlots.map((s, i) => {
                   const meta = SLOT_STATE[s.state];
                   const label = `${formatRange(s.slot_start, s.slot_end, facility.timezone)}, ${meta.label}`;
                   return (
-                    <li key={s.slot_start}>
+                    <li key={s.slot_start} style={{ "--i": Math.min(i, 12) } as CSSProperties}>
                       {meta.bookable ? (
                         <button type="button" onClick={() => pick(s)} aria-label={`Book ${label}`}
-                          className="flex h-[68px] w-full flex-col items-start justify-center rounded-2xl border-2 border-signal/80 bg-surface px-3.5 text-left transition-transform hover:bg-signal/10 active:scale-[0.97]">
-                          <span className="font-display text-2xl tabular">{formatTime(s.slot_start, facility.timezone)}</span>
-                          <span className="text-xs text-signal">Free · until {formatTime(s.slot_end, facility.timezone)}</span>
+                          className="group relative flex h-[74px] w-full flex-col items-start justify-center overflow-hidden rounded-[20px] border border-signal/45 bg-signal/[0.06] px-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:bg-signal/[0.12] hover:shadow-[0_14px_30px_-14px_rgb(255_197_61/0.8)] active:scale-[0.97]">
+                          <span className="absolute right-3 top-3 size-1.5 rounded-full bg-signal shadow-[0_0_10px_var(--signal)]" aria-hidden="true" />
+                          <span className="font-display text-[26px] leading-none tabular">{formatTime(s.slot_start, facility.timezone)}</span>
+                          <span className="mt-1 text-xs font-bold text-signal">Free · until {formatTime(s.slot_end, facility.timezone)}</span>
                         </button>
                       ) : (
                         <div aria-label={label} role="img"
-                          className={cx("flex h-[68px] w-full flex-col items-start justify-center rounded-2xl px-3.5",
-                            s.state === "requested" ? "border-2 border-dashed border-warn/70 text-ink/80" : "bg-raised text-faint")}>
-                          <span className="font-display text-2xl tabular">{formatTime(s.slot_start, facility.timezone)}</span>
+                          className={cx("flex h-[74px] w-full flex-col items-start justify-center rounded-[20px] px-4",
+                            s.state === "requested" ? "border border-dashed border-warn/60 bg-warn/[0.04] text-ink/80" : "border border-line bg-bg/60 text-faint line-through decoration-faint/40")}>
+                          <span className="font-display text-[26px] leading-none tabular">{formatTime(s.slot_start, facility.timezone)}</span>
                           <span className="text-xs">{meta.label}</span>
                         </div>
                       )}
@@ -267,8 +268,8 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
             <Input id="purpose" placeholder="What's the booking for?" {...form.register("purpose")} />
           </Field>
 
-          <fieldset className="flex flex-col gap-4 rounded-2xl border border-line p-4">
-            <legend className="px-1 text-sm font-semibold">Organiser</legend>
+          <fieldset className="panel flex flex-col gap-4 p-5">
+            <legend className="eyebrow px-1">Organiser</legend>
             <Field id="organizerName" label="Full name" error={form.formState.errors.organizerName?.message}>
               <Input id="organizerName" autoComplete="name" aria-invalid={!!form.formState.errors.organizerName} {...form.register("organizerName")} />
             </Field>
@@ -286,7 +287,7 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
           <Field id="notes" label="Notes for the facility (optional)" error={form.formState.errors.notes?.message}>
             <Textarea id="notes" rows={3} {...form.register("notes")} />
           </Field>
-          <label className="flex items-start gap-3 rounded-2xl border border-line p-4 text-sm">
+          <label className="panel flex cursor-pointer items-start gap-3 p-4 text-sm transition-colors hover:border-signal/40">
             <input type="checkbox" className="mt-0.5 size-5 accent-[var(--signal)]" {...form.register("publicListing")} />
             <span><strong>List on the public schedule</strong><br /><span className="text-muted">Shows the activity and team names (never contact details) once confirmed.</span></span>
           </label>
@@ -304,9 +305,9 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
           <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display text-3xl">Review &amp; submit</h2>
           {submitError && <Notice tone="danger">{submitError}</Notice>}
           <Card className="overflow-hidden">
-            <div className="border-b border-line bg-raised/60 p-4">
+            <div className="relative overflow-hidden border-b border-line bg-[linear-gradient(135deg,rgb(255_197_61/0.16),transparent_60%)] p-5">
               <p className="text-sm text-muted">{facility.name} · {surfaces.find((s) => s.id === selected.surface_id)?.name}</p>
-              <p className="font-display text-4xl tabular">{formatRange(selected.slot_start, selected.slot_end, facility.timezone)}</p>
+              <p className="font-display mt-1 text-4xl tabular text-signal">{formatRange(selected.slot_start, selected.slot_end, facility.timezone)}</p>
               <p className="text-sm">{formatDate(selected.slot_start, facility.timezone)}</p>
             </div>
             <dl className="divide-y divide-line text-sm">
@@ -335,9 +336,9 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
             </ul>
           </Card>
           {facility.rules && (
-            <details className="rounded-2xl border border-line p-4 text-sm">
-              <summary className="cursor-pointer font-semibold">Facility rules</summary>
-              <p className="mt-2 whitespace-pre-line text-muted">{facility.rules}</p>
+            <details className="panel group p-4 text-sm">
+              <summary className="flex items-center justify-between font-bold">Facility rules<span className="text-signal transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span></summary>
+              <p className="details-body mt-2 whitespace-pre-line text-muted">{facility.rules}</p>
             </details>
           )}
 

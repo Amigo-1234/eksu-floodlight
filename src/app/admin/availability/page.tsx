@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArtClipboard } from "@/components/brand/Illustrations";
 import { Suspense } from "react";
 import { Card, Chip, EmptyState, Notice } from "@/components/ui";
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -16,7 +17,7 @@ export const dynamic = "force-dynamic";
 export default async function AvailabilityPage(props: PageProps<"/admin/availability">) {
   const ctx = await requireAdmin("/admin/availability");
   const facility = pickFacility(ctx, (await props.searchParams).facility) ?? ctx.facilities[0]?.id ?? null;
-  if (!facility) return <EmptyState title="No facilities" body="Nothing to configure yet." />;
+  if (!facility) return <EmptyState art={<ArtClipboard className="h-28 w-auto" />} title="No facilities yet" body="Create a facility to set its hours and blocks." />;
   const supabase = await createSupabaseServerClient();
   const today = todayInTz();
   const [surfaces, blocks, slots] = await Promise.all([

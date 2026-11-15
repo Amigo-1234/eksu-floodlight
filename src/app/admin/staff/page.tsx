@@ -43,7 +43,7 @@ export default async function StaffPage() {
       {owners && (
         <section className="mb-6">
           <h2 className="font-display mb-2 text-2xl">Platform owners</h2>
-          <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface text-sm">
+          <ul className="divide-y divide-line panel text-sm">
             {owners.map((o) => (
               <li key={o.user_id} className="flex items-center justify-between gap-3 p-3">
                 <span><strong>{o.name || "—"}</strong> <span className="text-muted">{o.email}</span></span>
@@ -56,7 +56,7 @@ export default async function StaffPage() {
       <section className="mb-6">
         <h2 className="font-display mb-2 text-2xl">Facility staff</h2>
         {memberships.length === 0 ? <p className="text-sm text-muted">No staff assigned yet.</p> : (
-          <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface text-sm">
+          <ul className="divide-y divide-line panel text-sm">
             {memberships.map((m) => (
               <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 p-3">
                 <span><strong>{m.name || "—"}</strong> <span className="text-muted">{m.email}</span></span>
@@ -70,7 +70,7 @@ export default async function StaffPage() {
       {invitations.length > 0 && (
         <section>
           <h2 className="font-display mb-2 text-2xl">Open invitations</h2>
-          <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface text-sm">
+          <ul className="divide-y divide-line panel text-sm">
             {invitations.map((i) => (
               <li key={i.id} className="flex flex-wrap items-center justify-between gap-3 p-3">
                 <span>{i.email} · {ROLE[i.role]}{i.facility_id ? ` · ${facName.get(i.facility_id) ?? ""}` : ""}</span>

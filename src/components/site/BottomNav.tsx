@@ -11,19 +11,20 @@ const ITEMS = [
   { href: "/dashboard/profile", label: "Profile", icon: UserRound, match: (p: string) => p.startsWith("/dashboard/profile") },
 ];
 
-/** Bottom navigation for the signed-in customer area on phones only. */
+/** Floating tab bar for the signed-in customer area on phones. */
 export function BottomNav() {
   const path = usePathname();
   return (
-    <nav aria-label="Account" className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
-      <ul className="grid grid-cols-4">
+    <nav aria-label="Account" className="no-print fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-30 sm:hidden">
+      <ul className="glass grid grid-cols-4 rounded-[26px] border border-line-strong p-1.5 shadow-[0_20px_50px_-15px_rgb(0_0_0/0.95)]">
         {ITEMS.map(({ href, label, icon: Icon, match }) => {
           const active = match(path);
           return (
             <li key={href}>
               <Link href={href} aria-current={active ? "page" : undefined}
-                className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium ${active ? "text-signal" : "text-muted"}`}>
-                <Icon className="size-[22px]" aria-hidden="true" />{label}
+                className={`relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-[20px] text-[11px] font-bold transition-colors duration-200 ${active ? "bg-signal/[0.13] text-signal" : "text-muted"}`}>
+                <Icon className={`size-[21px] transition-transform duration-200 ${active ? "-translate-y-0.5" : ""}`} aria-hidden="true" />{label}
+                {active && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-signal shadow-[0_0_8px_var(--signal)]" aria-hidden="true" />}
               </Link>
             </li>
           );

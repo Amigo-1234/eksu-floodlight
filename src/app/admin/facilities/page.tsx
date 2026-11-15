@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArtClipboard } from "@/components/brand/Illustrations";
 import Link from "next/link";
 import { Card, Chip, EmptyState } from "@/components/ui";
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -30,13 +31,13 @@ export default async function AdminFacilities() {
           <CreateFacilityForm categories={(cats ?? []) as SportCategory[]} />
         </Card>
       )}
-      {ctx.facilities.length === 0 ? <EmptyState title="No facilities" body="Nothing configured yet." /> : (
+      {ctx.facilities.length === 0 ? <EmptyState art={<ArtClipboard className="h-28 w-auto" />} title="No facilities yet" body="Add your first EKSU facility below — its name, sport, hours and booking rules." /> : (
         <ul className="grid gap-3 md:grid-cols-2">
           {ctx.facilities.map((f) => {
             const r = ready.get(f.id);
             return (
               <li key={f.id}>
-                <Link href={`/admin/facilities/${f.id}`} className="block rounded-[var(--radius-card)] border border-line bg-surface p-4 hover:border-muted">
+                <Link href={`/admin/facilities/${f.id}`} className="block panel p-4 hover:border-muted">
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-display text-2xl">{f.name}</p>
                     <div className="flex flex-wrap justify-end gap-1">

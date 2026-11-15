@@ -18,7 +18,8 @@ export default async function GateHistory(props: PageProps<"/gate/history">) {
     .eq("facility_id", facility).order("at", { ascending: false }).limit(100);
   return (
     <>
-      <h1 className="font-display mb-4 text-4xl">Gate history</h1>
+      <p className="eyebrow">Today&apos;s log</p>
+      <h1 className="font-display mb-4 mt-1 text-4xl">Gate history</h1>
       {(data ?? []).length === 0 ? <p className="text-sm text-muted">No scans yet.</p> : (
         <ul className="flex flex-col gap-2">
           {data!.map((l) => {

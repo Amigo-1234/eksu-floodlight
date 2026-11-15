@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, Hourglass } from "lucide-react";
 import { z } from "zod";
 import { ButtonLink } from "@/components/ui";
+import { ArtSuccess, ArtTicket } from "@/components/brand/Illustrations";
 import { BookingTicket } from "@/components/booking/BookingTicket";
 import { ReceiptActions } from "@/components/booking/ReceiptActions";
 import { requireViewer } from "@/lib/auth";
@@ -27,13 +27,12 @@ export default async function ConfirmationPage(props: PageProps<"/booking/confir
   const { start } = parseRange(booking.period);
 
   return (
-    <div className="floodlight-sky min-h-full px-4 py-8">
+    <div className="floodlight-sky flex-1 px-4 py-8">
       <div className="mx-auto flex max-w-md flex-col gap-5">
         <div className="animate-rise flex flex-col items-center gap-2 text-center">
-          {confirmed
-            ? <CheckCircle2 className="size-12 text-signal" aria-hidden="true" />
-            : <Hourglass className="size-12 text-warn" aria-hidden="true" />}
-          <h1 className="font-display text-5xl">{confirmed ? "You're on" : "Request received"}</h1>
+          {confirmed ? <ArtSuccess className="h-32 w-auto" /> : <ArtTicket className="h-28 w-auto" />}
+          <p className="eyebrow">{confirmed ? "Booking confirmed" : "Request sent"}</p>
+          <h1 className="font-display text-5xl">{confirmed ? <>You&apos;re <span className="text-beam">on.</span></> : "Request received"}</h1>
           <p className="text-sm text-muted">
             {confirmed
               ? "Your booking is confirmed. Keep this receipt — it's always in My Bookings."
@@ -46,7 +45,7 @@ export default async function ConfirmationPage(props: PageProps<"/booking/confir
           shareUrl={`${siteUrl()}/facilities/${booking.facilities?.slug ?? ""}`} />
         <div className="no-print flex flex-col gap-2">
           <ButtonLink href={`/dashboard/bookings/${booking.id}`} variant="outline">Manage this booking</ButtonLink>
-          <Link href="/facilities" className="text-center text-sm font-semibold text-signal">Book another field</Link>
+          <Link href="/facilities" className="text-center text-sm font-bold text-signal">Book another slot</Link>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArtClipboard } from "@/components/brand/Illustrations";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Chip, EmptyState, Notice } from "@/components/ui";
@@ -36,10 +37,10 @@ export default async function CheckInsPage(props: PageProps<"/admin/check-ins">)
         <Notice tone="warn" className="mb-4" title="Gate admission is in TEST MODE">Scans are verified and logged, but no booking is marked as checked in until a platform owner turns on live admission after the entry policy is approved.</Notice>
       )}
       {ids.length === 0 ? <Notice tone="info">Only facility administrators can view gate logs.</Notice> : (logs.data ?? []).length === 0 ? (
-        <EmptyState title="No gate activity yet" />
+        <EmptyState art={<ArtClipboard className="h-28 w-auto" />} title="No gate activity yet" body="Scans and manual check-ins will appear here as soon as the gate starts working." />
       ) : (
-        <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line bg-surface">
-          <table className="w-full min-w-[640px] text-sm">
+        <div className="overflow-x-auto panel">
+          <table className="data-table min-w-[640px]">
             <thead className="border-b border-line text-left text-xs text-muted">
               <tr><th className="px-3 py-2">Time</th><th className="px-3 py-2">Facility</th><th className="px-3 py-2">Result</th><th className="px-3 py-2">Method</th><th className="px-3 py-2">Mode</th><th className="px-3 py-2">Booking</th></tr>
             </thead>
@@ -51,7 +52,7 @@ export default async function CheckInsPage(props: PageProps<"/admin/check-ins">)
                   <td className="px-3 py-2"><Chip tone={RESULT_TONE[l.result] ?? "muted"}>{l.result.replaceAll("_", " ").toLowerCase()}</Chip>{l.committed && <span className="ml-1 text-xs text-ok">checked in</span>}</td>
                   <td className="px-3 py-2">{l.method}{l.device_label ? ` · ${l.device_label}` : ""}</td>
                   <td className="px-3 py-2">{l.mode}</td>
-                  <td className="px-3 py-2">{l.booking_id ? <Link className="text-pitch hover:underline" href={`/admin/bookings/${l.booking_id}`}>Open</Link> : "—"}</td>
+                  <td className="px-3 py-2">{l.booking_id ? <Link className="text-signal hover:underline" href={`/admin/bookings/${l.booking_id}`}>Open</Link> : "—"}</td>
                 </tr>
               ))}
             </tbody>

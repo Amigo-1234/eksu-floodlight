@@ -26,13 +26,14 @@ export function AdminNav({ isOwner }: { isOwner: boolean }) {
   const items = ITEMS.filter((i) => !i.ownerOnly || isOwner);
   return (
     <nav aria-label="Admin sections">
-      <ul className="-mx-4 flex gap-1 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:px-0">
+      <ul className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:gap-0.5 lg:px-0 lg:pb-0">
         {items.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? path === href : path.startsWith(href);
           return (
             <li key={href} className="shrink-0">
               <Link href={`${href}${qs}`} aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium ${active ? "bg-ink text-bg" : "text-muted hover:bg-raised hover:text-ink"}`}>
+                className={`relative flex items-center gap-2.5 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition-colors duration-200 max-lg:border ${active ? "bg-signal/[0.12] text-signal max-lg:border-signal/40" : "text-muted hover:bg-white/[0.04] hover:text-ink max-lg:border-line"}`}>
+                {active && <span className="absolute -left-px top-2 bottom-2 hidden w-[3px] rounded-full bg-signal shadow-[0_0_10px_var(--signal)] lg:block" aria-hidden="true" />}
                 <Icon className="size-4" aria-hidden="true" />{label}
               </Link>
             </li>

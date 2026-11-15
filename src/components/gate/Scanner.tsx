@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { ArtVerdict } from "@/components/brand/Illustrations";
 import jsQR from "jsqr";
-import { Camera, CameraOff, CheckCircle2, Keyboard, Loader2, RotateCcw, WifiOff, XCircle } from "lucide-react";
+import { Camera, CameraOff, Keyboard, Loader2, RotateCcw, WifiOff } from "lucide-react";
 import { Button, Field, Input, Notice, Textarea } from "@/components/ui";
 import { gateLookup, gateManualCheckIn, gateScan } from "@/app/gate/actions";
 import { formatRange, formatTime } from "@/lib/format";
@@ -113,7 +114,7 @@ export function Scanner({ facilityId, facilityName, timezone, live }: { facility
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Scanning at</p>
+        <p className="eyebrow">Scanning at</p>
         <h1 className="font-display text-4xl">{facilityName}</h1>
       </div>
 
@@ -126,10 +127,18 @@ export function Scanner({ facilityId, facilityName, timezone, live }: { facility
       )}
       {verdict?.kind === "error" && <Notice tone="danger">{verdict.message}</Notice>}
 
-      <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-line bg-black">
+      <div className="glow-ring relative aspect-square w-full overflow-hidden rounded-[30px] bg-black">
         <video ref={videoRef} playsInline muted className={`h-full w-full object-cover ${camera === "on" ? "" : "hidden"}`} />
         <canvas ref={canvasRef} className="hidden" />
-        {camera === "on" && <div className="pointer-events-none absolute inset-[18%] rounded-3xl border-4 border-signal/80" aria-hidden="true" />}
+        {camera === "on" && (
+          <div className="pointer-events-none absolute inset-[18%]" aria-hidden="true">
+            <span className="absolute left-0 top-0 h-10 w-10 rounded-tl-3xl border-l-4 border-t-4 border-signal" />
+            <span className="absolute right-0 top-0 h-10 w-10 rounded-tr-3xl border-r-4 border-t-4 border-signal" />
+            <span className="absolute bottom-0 left-0 h-10 w-10 rounded-bl-3xl border-b-4 border-l-4 border-signal" />
+            <span className="absolute bottom-0 right-0 h-10 w-10 rounded-br-3xl border-b-4 border-r-4 border-signal" />
+            <span className="scan-line absolute inset-x-3 top-2 h-0.5 rounded-full bg-signal shadow-[0_0_16px_4px_rgb(255_197_61/0.6)]" />
+          </div>
+        )}
         {camera !== "on" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
             {pending ? <Loader2 className="size-10 animate-spin text-signal" aria-hidden="true" /> : camera === "denied" ? (
@@ -160,12 +169,12 @@ function VerdictScreen({ verdict, live, timezone, pending, onCommit, onNext }: {
 }) {
   const { res } = verdict;
   const meta = RESULT[res.result] ?? { title: res.result, body: "", tone: "danger" as const };
-  const bg = res.checked_in ? "bg-[#0e7a3a]" : meta.tone === "ok" ? "bg-[#0e7a3a]" : meta.tone === "warn" ? "bg-[#8a5300]" : "bg-[#9b1c14]";
+  const bg = res.checked_in || meta.tone === "ok" ? "bg-[radial-gradient(120%_70%_at_50%_0%,#0f5a33,#04140b)]" : meta.tone === "warn" ? "bg-[radial-gradient(120%_70%_at_50%_0%,#5c3a00,#140c00)]" : "bg-[radial-gradient(120%_70%_at_50%_0%,#6b1020,#14030a)]";
   const b = res.booking;
   return (
     <div role="status" aria-live="assertive" className={`animate-rise -mx-4 -mt-4 flex min-h-[calc(100dvh-8rem)] flex-col gap-4 px-5 py-6 text-white ${bg}`}>
       <div className="flex items-center gap-3">
-        {meta.tone === "ok" ? <CheckCircle2 className="size-14" aria-hidden="true" /> : <XCircle className="size-14" aria-hidden="true" />}
+        <ArtVerdict ok={res.checked_in || meta.tone === "ok"} className="size-20 shrink-0" />
         <p className="font-display text-5xl leading-none">{res.checked_in ? "CHECKED IN" : meta.title}</p>
       </div>
       <p className="text-lg">{res.checked_in ? (res.mode === "test" ? "Recorded as a TEST check-in. Not an entry authorization." : "Entry recorded.") : meta.body}</p>
@@ -173,11 +182,11 @@ function VerdictScreen({ verdict, live, timezone, pending, onCommit, onNext }: {
       {b && <BookingCard b={b} timezone={timezone} />}
       <div className="mt-auto flex flex-col gap-3">
         {res.result === "VALID" && !res.checked_in && verdict.token && (
-          <button onClick={onCommit} disabled={pending} className="flex h-16 items-center justify-center gap-2 rounded-2xl bg-white text-xl font-bold text-[#0e7a3a] disabled:opacity-60">
+          <button onClick={onCommit} disabled={pending} className="flex h-16 items-center justify-center gap-2 rounded-2xl bg-[#3ee08f] text-xl font-extrabold text-[#04140b] shadow-[0_14px_40px_-12px_#3ee08f] transition-transform active:scale-[0.98] disabled:opacity-60">
             {pending && <Loader2 className="size-5 animate-spin" aria-hidden="true" />}{live ? "Check in team" : "Record test check-in"}
           </button>
         )}
-        <button onClick={onNext} className="flex h-14 items-center justify-center gap-2 rounded-2xl border-2 border-white text-lg font-semibold">
+        <button onClick={onNext} className="flex h-14 items-center justify-center gap-2 rounded-2xl border-2 border-white/80 text-lg font-bold transition-colors hover:bg-white/10">
           <RotateCcw className="size-5" aria-hidden="true" />Scan next
         </button>
       </div>
@@ -203,7 +212,7 @@ function ManualLookup({ facilityId, timezone, onResult }: { facilityId: string; 
   const [pending, start] = useTransition();
   const [key] = useState(() => crypto.randomUUID());
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line p-4">
+    <div className="panel flex flex-col gap-3 p-4">
       <form className="flex gap-2" onSubmit={(e) => {
         e.preventDefault();
         start(async () => {
@@ -223,7 +232,7 @@ function ManualLookup({ facilityId, timezone, onResult }: { facilityId: string; 
       {err && <Notice tone="danger">{err}</Notice>}
       {found && (
         <div className="flex flex-col gap-3">
-          <div className="rounded-xl bg-raised p-3 text-sm">
+          <div className="rounded-2xl border border-line bg-bg p-3 text-sm">
             <p className="font-semibold">{RESULT[found.result]?.title ?? found.result}</p>
             <p className="font-display text-2xl tabular">{formatRange(found.booking.starts_at, found.booking.ends_at, timezone)}</p>
             <p>{[found.booking.team_name, found.booking.opponent_name].filter(Boolean).join(" vs ")} · {found.booking.organizer}</p>

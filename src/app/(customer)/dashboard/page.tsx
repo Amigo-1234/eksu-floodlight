@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { ButtonLink, Card, Chip, EmptyState } from "@/components/ui";
+import { ArtTicket } from "@/components/brand/Illustrations";
 import { BookingRow } from "@/components/booking/BookingRow";
 import { requireViewer } from "@/lib/auth";
 import { listOwnBookings } from "@/lib/bookings";
@@ -31,9 +32,9 @@ export default async function DashboardPage() {
   const unread = (notes ?? []).filter((n) => !n.read_at).length;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      <p className="text-sm text-muted">Welcome{viewer.fullName ? `, ${viewer.fullName.split(" ")[0]}` : ""}</p>
-      <h1 className="font-display text-5xl">My dashboard</h1>
+    <div className="mx-auto w-full max-w-3xl px-4 py-8">
+      <p className="eyebrow">Dashboard</p>
+      <h1 className="font-display mt-2 text-[44px] leading-[0.95] sm:text-5xl">Hey{viewer.fullName ? `, ${viewer.fullName.split(" ")[0]}` : ""} <span aria-hidden="true">👋</span></h1>
 
       {next ? (() => {
         const { start, end } = parseRange(next.period);
@@ -41,14 +42,15 @@ export default async function DashboardPage() {
         const head = bookingHeadline(next);
         return (
           <Link href={`/dashboard/bookings/${next.id}`}
-            className="animate-rise mt-6 block rounded-[22px] bg-signal p-5 text-signal-ink transition-transform active:scale-[0.99]">
-            <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.14em]">
+            className="glow-ring animate-rise relative mt-6 block overflow-hidden rounded-[26px] bg-[linear-gradient(135deg,#ffd166,#ffc53d_45%,#ff9f1c)] p-5 text-signal-ink transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.99]">
+            <div className="pitch-lines pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
+            <div className="relative flex items-center justify-between font-mono text-[10.5px] font-medium uppercase tracking-[0.16em]">
               <span>Next up · {next.facilities?.name}</span>
               <span className="rounded-full bg-signal-ink px-2 py-0.5 text-signal">{head.label}</span>
             </div>
-            <p className="font-display mt-3 text-5xl tabular">{formatRange(start, end, tz).split(" – ")[0]}</p>
-            <p className="text-sm font-semibold">{formatDate(start, tz)}</p>
-            <div className="mt-3 flex items-center justify-between text-sm">
+            <p className="font-display relative mt-4 text-6xl tracking-[-0.05em] tabular">{formatRange(start, end, tz).split(" – ")[0]}</p>
+            <p className="relative text-sm font-bold">{formatDate(start, tz)}</p>
+            <div className="relative mt-4 flex items-center justify-between border-t border-signal-ink/20 pt-3 text-sm font-semibold">
               <span className="truncate">{next.activity_title ?? ([next.team_name, next.opponent_name].filter(Boolean).join(" vs ") || next.playing_surfaces?.name)}</span>
               <span className="font-mono">{next.reference}</span>
             </div>
@@ -56,15 +58,15 @@ export default async function DashboardPage() {
         );
       })() : (
         <div className="mt-6">
-          <EmptyState title="No upcoming bookings" body="Find a facility and pick a time that suits your team."
-            action={<ButtonLink href="/facilities">Book a field</ButtonLink>} />
+          <EmptyState art={<ArtTicket className="h-28 w-auto" />} title="No games lined up" body="Find a facility and grab a time that suits your team."
+            action={<ButtonLink href="/facilities">Book a slot</ButtonLink>} />
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-        <Card className="p-3"><p className="font-display text-3xl tabular">{upcoming.length}</p><p className="text-xs text-muted">Upcoming</p></Card>
-        <Card className="p-3"><p className="font-display text-3xl tabular">{awaiting}</p><p className="text-xs text-muted">Awaiting action</p></Card>
-        <Card className="p-3"><p className="font-display text-3xl tabular">{bookings.length}</p><p className="text-xs text-muted">All bookings</p></Card>
+      <div className="mt-4 grid grid-cols-3 gap-2.5 text-center">
+        <Card className="p-4"><p className="font-display text-4xl tabular text-signal">{upcoming.length}</p><p className="mt-1 text-xs font-semibold text-muted">Upcoming</p></Card>
+        <Card className="p-4"><p className="font-display text-4xl tabular">{awaiting}</p><p className="mt-1 text-xs font-semibold text-muted">Awaiting</p></Card>
+        <Card className="p-4"><p className="font-display text-4xl tabular">{bookings.length}</p><p className="mt-1 text-xs font-semibold text-muted">All time</p></Card>
       </div>
 
       {upcoming.length > 1 && (
@@ -82,9 +84,9 @@ export default async function DashboardPage() {
           )}
         </div>
         {(notes ?? []).length === 0 ? (
-          <p className="text-sm text-muted">No updates yet. You&apos;ll see approvals, confirmations and changes here.</p>
+          <p className="panel p-4 text-sm text-muted">No updates yet. You&apos;ll see approvals, confirmations and changes here.</p>
         ) : (
-          <ul className="flex flex-col divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface">
+          <ul className="panel flex flex-col divide-y divide-line">
             {notes!.map((n) => (
               <li key={n.id} className="flex gap-3 p-3">
                 <span className={`mt-1.5 size-2 shrink-0 rounded-full ${n.read_at ? "bg-transparent" : "bg-signal"}`} aria-hidden="true" />

@@ -6,7 +6,7 @@ export const brand = {
   name: "EKSU Floodlight",
   short: "Floodlight",
   descriptor: "EKSU Sports Facility Booking & Management",
-  tagline: "Your Field. Your Time. Your Game.",
+  tagline: "Your game, under the lights.",
   community: "the EKSU sports community",
   location: "Ado-Ekiti, Ekiti State",
   endorsementNotice:

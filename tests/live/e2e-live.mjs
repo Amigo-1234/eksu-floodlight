@@ -1,6 +1,8 @@
 // Live end-to-end workflow test for EKSU Floodlight against the shared
 // Supabase project, using ONLY the public Data API + publishable key and the
-// controlled test accounts in ~/.eksu/floodlight-test-accounts.env.
+// controlled test accounts in ~/.eksu/floodlight-test-accounts.env (create them with
+// scripts/provision-test-accounts.sh and remove them afterwards; none exist after the
+// 2026-11-15 pre-launch cleanup).
 // Touches only DEV fixture facilities. Payments and live gate admission stay
 // off (gate runs in TEST MODE). Prints no credentials or tokens.
 //

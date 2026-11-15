@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArtClipboard } from "@/components/brand/Illustrations";
 import { Suspense } from "react";
 import { Card, EmptyState, Notice } from "@/components/ui";
 import { PageHeader, Stat } from "@/components/admin/PageHeader";
@@ -27,7 +28,7 @@ function Bars({ rows, label }: { rows: { key: string; value: number }[]; label: 
         {rows.map((r) => (
           <li key={r.key} className="grid grid-cols-[72px_minmax(0,1fr)_40px] items-center gap-2 text-xs">
             <span className="text-muted tabular">{r.key}</span>
-            <span className="h-3 rounded-full bg-raised"><span className="block h-3 rounded-full bg-pitch" style={{ width: `${(r.value / max) * 100}%` }} /></span>
+            <span className="h-3 rounded-full bg-raised"><span className="block h-3 rounded-full bg-signal" style={{ width: `${(r.value / max) * 100}%` }} /></span>
             <span className="text-right tabular">{r.value}</span>
           </li>
         ))}
@@ -60,7 +61,7 @@ export default async function ReportsPage(props: PageProps<"/admin/reports">) {
           </form>
         </>} />
       {error && <Notice tone="danger">{error.message.startsWith("INVALID_RANGE") ? "Choose a range of up to 92 days." : "Couldn't build the report."}</Notice>}
-      {r && total === 0 && <EmptyState title="No bookings in this range" />}
+      {r && total === 0 && <EmptyState art={<ArtClipboard className="h-28 w-auto" />} title="No bookings in this range" body="Try a wider date range." />}
       {r && total > 0 && (
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

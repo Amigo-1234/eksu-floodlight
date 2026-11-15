@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ButtonLink, EmptyState } from "@/components/ui";
+import { ButtonLink, EmptyState, stagger } from "@/components/ui";
+import { ArtTicket } from "@/components/brand/Illustrations";
 import { BookingRow } from "@/components/booking/BookingRow";
 import { requireViewer } from "@/lib/auth";
 import { listOwnBookings } from "@/lib/bookings";
@@ -35,22 +36,23 @@ export default async function MyBookingsPage(props: PageProps<"/dashboard/bookin
     });
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="font-display text-5xl">My bookings</h1>
-      <nav aria-label="Booking lists" className="mt-5 grid grid-cols-3 gap-1 rounded-xl bg-surface p-1">
+    <div className="mx-auto w-full max-w-3xl px-4 py-8">
+      <p className="eyebrow">Your passes &amp; receipts</p>
+      <h1 className="font-display mt-2 text-5xl">My bookings</h1>
+      <nav aria-label="Booking lists" className="mt-6 grid grid-cols-3 gap-1 rounded-2xl border border-line bg-surface p-1">
         {TABS.map((t) => (
           <Link key={t.key} href={`/dashboard/bookings?tab=${t.key}`} aria-current={t.key === active ? "page" : undefined}
-            className="rounded-lg px-2 py-2 text-center text-[13px] font-semibold text-muted aria-[current=page]:bg-raised aria-[current=page]:text-ink">
-            {t.label} <span className="text-faint">({all.filter((b) => bucket(b, now) === t.key).length})</span>
+            className="rounded-xl px-2 py-2.5 text-center text-[13px] font-bold text-muted transition-colors aria-[current=page]:bg-signal aria-[current=page]:text-signal-ink">
+            {t.label} <span className="opacity-60">({all.filter((b) => bucket(b, now) === t.key).length})</span>
           </Link>
         ))}
       </nav>
       <div className="mt-5">
         {shown.length === 0 ? (
-          <EmptyState title="Nothing here" body={active === "upcoming" ? "You have no upcoming bookings." : "No bookings in this list."}
-            action={active === "upcoming" ? <ButtonLink href="/facilities">Book a field</ButtonLink> : undefined} />
+          <EmptyState art={<ArtTicket className="h-28 w-auto" />} title={active === "upcoming" ? "No games lined up" : "Nothing here yet"} body={active === "upcoming" ? "Your next booking will show up here with its pass." : "Bookings you make will be kept here."}
+            action={active === "upcoming" ? <ButtonLink href="/facilities">Book a slot</ButtonLink> : undefined} />
         ) : (
-          <ul className="flex flex-col gap-2">{shown.map((b) => <BookingRow key={b.id} b={b} href={`/dashboard/bookings/${b.id}`} />)}</ul>
+          <ul className="stagger flex flex-col gap-2.5">{shown.map((b, i) => <div key={b.id} style={stagger(i)}><BookingRow b={b} href={`/dashboard/bookings/${b.id}`} /></div>)}</ul>
         )}
       </div>
     </div>

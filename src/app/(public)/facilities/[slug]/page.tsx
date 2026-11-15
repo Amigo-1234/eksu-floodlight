@@ -40,21 +40,22 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
 
   return (
     <div className="pb-28 sm:pb-10">
-      <div className="relative h-56 overflow-hidden border-b border-line bg-raised sm:h-72">
+      <div className="relative h-60 overflow-hidden border-b border-line bg-raised sm:h-80">
         {cover
           // eslint-disable-next-line @next/next/no-img-element -- public storage image
           ? <img src={cover} alt={images[0]?.alt_text || ""} className="h-full w-full object-cover" />
           : <PitchArt sport={f.sport_categories?.slug} className="h-full w-full" />}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-bg to-transparent" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/30 to-transparent" aria-hidden="true" />
+        <div className="pointer-events-none absolute -left-24 -top-24 size-80 rounded-full bg-signal/20 blur-3xl" aria-hidden="true" />
       </div>
 
-      <div className="mx-auto -mt-10 max-w-6xl px-4">
+      <div className="mx-auto -mt-16 max-w-6xl px-4">
         <div className="relative flex flex-col gap-3">
           <div className="flex flex-wrap gap-2">
             <Chip tone="muted">{f.sport_categories?.name}</Chip>
             {f.is_dev_fixture && <DevFixtureBadge />}
           </div>
-          <h1 className="font-display text-5xl sm:text-6xl">{f.name}</h1>
+          <h1 className="font-display text-[44px] leading-[0.95] sm:text-6xl">{f.name}</h1>
           {f.location_label && <p className="flex items-center gap-1.5 text-muted"><MapPin className="size-4" aria-hidden="true" />{f.location_label}</p>}
         </div>
 
@@ -75,9 +76,9 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
               {hours.length === 0 ? <p className="text-sm text-muted">Opening hours haven&apos;t been published.</p> : (
                 <dl className="grid gap-1 sm:grid-cols-2">
                   {byDay.map((d) => (
-                    <div key={d.name} className="flex justify-between rounded-lg bg-surface px-3 py-2 text-sm">
+                    <div key={d.name} className="flex justify-between rounded-xl border border-line bg-surface px-4 py-2.5 text-sm">
                       <dt className="text-muted">{d.name}</dt>
-                      <dd className="tabular">{d.ranges.length ? d.ranges.join(", ") : "Closed"}</dd>
+                      <dd className={`tabular font-semibold ${d.ranges.length ? "" : "text-faint"}`}>{d.ranges.length ? d.ranges.join(", ") : "Closed"}</dd>
                     </div>
                   ))}
                 </dl>
@@ -139,12 +140,12 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
       </div>
 
       {readiness.bookable && (
-        <div className="no-print fixed inset-x-0 bottom-0 z-20 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur sm:static sm:mx-auto sm:mt-8 sm:max-w-6xl sm:border-0 sm:bg-transparent">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+        <div className="no-print fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-20 sm:static sm:mx-auto sm:mt-10 sm:max-w-6xl sm:px-4">
+          <div className="glass glow-ring mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-[24px] px-4 py-3 sm:px-6 sm:py-4">
             <p className="text-sm text-muted"><CalendarClock className="mr-1 inline size-4" aria-hidden="true" />
               {freeToday > 0 ? <><strong className="text-ink">{freeToday}</strong> free slots today</> : "No free slots today — try another date"}
             </p>
-            <ButtonLink href={`/book/${f.id}`} size="lg" className="min-w-40">Check availability</ButtonLink>
+            <ButtonLink href={`/book/${f.id}`} size="lg" className="sm:min-w-48">Pick a slot</ButtonLink>
           </div>
         </div>
       )}

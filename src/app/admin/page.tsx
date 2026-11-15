@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { ArtClipboard } from "@/components/brand/Illustrations";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Card, Chip, EmptyState, Notice } from "@/components/ui";
+import { buttonClass, Card, Chip, EmptyState, Notice } from "@/components/ui";
 import { PageHeader, Stat } from "@/components/admin/PageHeader";
 import { FacilitySwitcher } from "@/components/admin/FacilitySwitcher";
 import { pickFacility, requireAdmin } from "@/lib/admin";
@@ -32,9 +33,9 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
     return (
       <>
         <PageHeader title="Overview" />
-        <EmptyState title="No facilities yet"
+        <EmptyState art={<ArtClipboard className="h-28 w-auto" />} title="Let's light up the first field"
           body={ctx.isOwner ? "Create the first EKSU facility to start taking bookings." : "You haven't been assigned to a facility yet."}
-          action={ctx.isOwner ? <Link href="/admin/facilities" className="font-semibold text-pitch">Add a facility</Link> : undefined} />
+          action={ctx.isOwner ? <Link href="/admin/facilities" className={buttonClass("signal", "md")}>Add a facility</Link> : undefined} />
       </>
     );
   }
@@ -73,7 +74,7 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
         <section aria-labelledby="queue-h">
           <div className="mb-3 flex items-center justify-between">
             <h2 id="queue-h" className="font-display text-2xl">Needs a decision</h2>
-            <Link href={`/admin/bookings?view=pending${facility ? `&facility=${facility}` : ""}`} className="text-sm font-semibold text-pitch">All requests</Link>
+            <Link href={`/admin/bookings?view=pending${facility ? `&facility=${facility}` : ""}`} className="text-sm font-semibold text-signal">All requests</Link>
           </div>
           {(pending.data ?? []).length === 0 ? <Card className="p-5 text-sm text-muted">No requests waiting.</Card> : (
             <ul className="flex flex-col gap-2">
@@ -81,7 +82,7 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
                 const { start, end } = parseRange(b.period);
                 return (
                   <li key={b.id}>
-                    <Link href={`/admin/bookings/${b.id}`} className="flex items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-3 hover:border-muted">
+                    <Link href={`/admin/bookings/${b.id}`} className="flex items-center justify-between gap-3 panel p-3 hover:border-muted">
                       <div className="min-w-0">
                         <p className="truncate font-semibold">{b.organizer_name} <span className="font-normal text-muted">· {b.facilities?.name}</span></p>
                         <p className="text-sm text-muted tabular">{formatDate(start, undefined, "short")} · {formatRange(start, end)}</p>
@@ -98,10 +99,10 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
         <section aria-labelledby="day-h">
           <div className="mb-3 flex items-center justify-between">
             <h2 id="day-h" className="font-display text-2xl">Day-sheet</h2>
-            <Link href={`/admin/bookings?date=${today}${facility ? `&facility=${facility}` : ""}`} className="text-sm font-semibold text-pitch">Open</Link>
+            <Link href={`/admin/bookings?date=${today}${facility ? `&facility=${facility}` : ""}`} className="text-sm font-semibold text-signal">Open</Link>
           </div>
           {(todays.data ?? []).length === 0 ? <Card className="p-5 text-sm text-muted">Nothing booked today.</Card> : (
-            <ol className="flex flex-col divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface">
+            <ol className="flex flex-col divide-y divide-line panel">
               {(todays.data as Booking[]).map((b) => {
                 const { start, end } = parseRange(b.period);
                 const h = bookingHeadline(b);

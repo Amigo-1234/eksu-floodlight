@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArtSearch } from "@/components/brand/Illustrations";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Plus } from "lucide-react";
@@ -87,10 +88,10 @@ export default async function AdminBookings(props: PageProps<"/admin/bookings">)
       </div>
 
       {error ? <Notice tone="danger">Couldn&apos;t load bookings.</Notice> : bookings.length === 0 ? (
-        <EmptyState title="No bookings" body="Nothing matches these filters." />
+        <EmptyState art={<ArtSearch className="h-28 w-auto" />} title="No bookings here" body="Nothing matches these filters yet." />
       ) : (
-        <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line bg-surface">
-          <table className="w-full min-w-[720px] text-sm">
+        <div className="overflow-x-auto panel">
+          <table className="data-table min-w-[720px]">
             <thead className="border-b border-line text-left text-xs text-muted">
               <tr>
                 <th className="px-3 py-2.5 font-medium">When</th>

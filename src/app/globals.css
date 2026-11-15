@@ -1,143 +1,278 @@
 @import "tailwindcss";
 
 /*
- * FLOODLIGHT design tokens.
- * Public + customer surfaces use the night theme (default). Staff consoles
- * (admin) opt into `.theme-day`, a light theme built from the same tokens.
- * Contrast: every text/background pair below meets WCAG 2.2 AA (4.5:1);
- * gate verdict screens target 7:1 for outdoor sunlight.
+ * EKSU FLOODLIGHT — "Night Session" design system.
+ *
+ * Black-first. Light is used the way a floodlit pitch uses it: one warm
+ * amber key light (--signal) for the thing you should press or notice, a cold
+ * "ice" rim light (--glow) for live/informational accents, and everything else
+ * sits in deep, layered darkness.
+ *
+ * Colour usage rules (keep these when adding UI):
+ *  - --signal (amber): primary actions, the selected slot, "free" counts,
+ *    focus rings. Never for long text.
+ *  - --glow (ice): live states, info, decorative rim lights.
+ *  - --ok / --warn / --danger: status only (booking, payment, gate verdicts).
+ *  - Surfaces step up in lightness: --bg → --surface → --raised. Borders use
+ *    --line; emphasised borders --line-strong.
+ * Contrast: --ink and --muted meet WCAG AA (≥4.5:1) on every surface;
+ * gate verdict screens use ≥7:1 for outdoor sunlight.
  */
 :root {
-  --bg: #0b100f;
-  --surface: #121a18;
-  --raised: #1a2522;
-  --line: #2a3733;
-  --ink: #f2f1ea;
-  --muted: #a8b4ae;        /* 8.9:1 on --bg */
-  --faint: #72807a;        /* decorative only, never body text */
-  --signal: #c6f135;       /* primary action + "now" */
-  --signal-ink: #0b100f;
-  --pitch: #1f8a4c;        /* turf green */
-  --ok: #4ade80;
-  --warn: #ffb547;
-  --danger: #ff7a6e;
-  --info: #67c7f0;
-  --ring: #c6f135;
+  --bg: #050608;
+  --bg-2: #08090d;
+  --surface: #0d0f14;
+  --raised: #151821;
+  --line: #222632;
+  --line-strong: #323849;
+  --ink: #f5f3ee;
+  --muted: #a3a9b9;        /* 8.6:1 on --bg */
+  --faint: #6c7387;        /* decorative only */
+  --signal: #ffc53d;       /* floodlight amber */
+  --signal-2: #ff9f1c;     /* deeper amber for gradients */
+  --signal-ink: #170f00;
+  --glow: #6ae4ff;         /* ice rim light */
+  --pitch: #2bd68a;
+  --ok: #3ee08f;
+  --warn: #ff9f45;
+  --danger: #ff5c72;
+  --info: #6ae4ff;
+  --ring: #ffc53d;
+  --radius-card: 22px;
 }
 
-.theme-day {
-  --bg: #f5f4ee;
-  --surface: #ffffff;
-  --raised: #efeee7;
-  --line: #dddbd0;
-  --ink: #101614;
-  --muted: #4f5c56;        /* 6.9:1 on --surface */
-  --faint: #8d9893;
-  --signal: #c6f135;
-  --signal-ink: #0b100f;
-  --pitch: #146c39;
-  --ok: #157a3c;
-  --warn: #9a5a00;
-  --danger: #b3261e;
-  --info: #0b6b93;
-  --ring: #146c39;
-}
+/* Staff consoles share the night system (no light theme). Kept as a hook. */
+.theme-day { }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
   --color-surface: var(--surface);
   --color-raised: var(--raised);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-faint: var(--faint);
   --color-signal: var(--signal);
+  --color-signal-2: var(--signal-2);
   --color-signal-ink: var(--signal-ink);
+  --color-glow: var(--glow);
   --color-pitch: var(--pitch);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-danger: var(--danger);
   --color-info: var(--info);
-  --font-display: var(--font-big-shoulders), "Arial Narrow", sans-serif;
-  --font-sans: var(--font-instrument-sans), system-ui, sans-serif;
+  --font-display: var(--font-bricolage), "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
-  --radius-card: 16px;
+  --radius-card: 22px;
 }
 
 html { color-scheme: dark; background: var(--bg); min-height: 100%; }
-html:has(.theme-day) { background: #f5f4ee; }
-html:has(.theme-day) { color-scheme: light; }
 body { min-height: 100dvh; }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(1200px 520px at 50% -260px, rgb(255 197 61 / 0.07), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
 }
 
+::selection { background: rgb(255 197 61 / 0.35); color: var(--ink); }
+
 .font-display {
   font-family: var(--font-display);
   font-weight: 800;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  font-variation-settings: "wdth" 92;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  line-height: 0.95;
+  color: var(--signal);
 }
 
 .tabular { font-variant-numeric: tabular-nums; }
 
 :focus-visible {
   outline: 2px solid var(--ring);
-  outline-offset: 2px;
-  border-radius: 6px;
+  outline-offset: 3px;
+  border-radius: 10px;
 }
 
-/* Floodlight atmosphere: two light cones over a faint pitch-line grid. */
+/* Thin, dark scrollbars on desktop. */
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+
+/* ---------------------------------------------------------------- atmosphere */
+
+/* Night sky: warm key light top-left, cold rim light top-right. */
 .floodlight-sky {
   background:
-    radial-gradient(60% 55% at 12% -10%, rgb(198 241 53 / 0.16), transparent 70%),
-    radial-gradient(55% 50% at 92% -15%, rgb(103 199 240 / 0.12), transparent 70%),
-    var(--bg);
+    radial-gradient(70% 60% at 8% -18%, rgb(255 197 61 / 0.18), transparent 62%),
+    radial-gradient(55% 50% at 100% -10%, rgb(106 228 255 / 0.10), transparent 65%),
+    linear-gradient(180deg, #07080c 0%, var(--bg) 70%);
 }
 
+/* Faint pitch grid that fades out from the centre. */
 .pitch-lines {
   background-image:
-    linear-gradient(to right, rgb(242 241 234 / 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(242 241 234 / 0.05) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(80% 70% at 50% 30%, black, transparent);
+    linear-gradient(to right, rgb(245 243 238 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(245 243 238 / 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(75% 65% at 50% 25%, black, transparent);
+}
+
+/* Glass bars (header, bottom navs). */
+.glass {
+  background: linear-gradient(180deg, rgb(13 15 20 / 0.82), rgb(5 6 8 / 0.78));
+  backdrop-filter: saturate(140%) blur(16px);
+  -webkit-backdrop-filter: saturate(140%) blur(16px);
+}
+
+/* Panel with a soft top highlight — the base of every card. */
+.panel {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.025), rgb(255 255 255 / 0) 40%), var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 24px 60px -40px rgb(0 0 0 / 0.9);
+}
+
+/* Amber edge glow for featured panels. */
+.glow-ring {
+  box-shadow:
+    0 0 0 1px rgb(255 197 61 / 0.35),
+    0 18px 60px -24px rgb(255 197 61 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+/* Hover lift for interactive cards. */
+.lift { transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 220ms, box-shadow 220ms; }
+@media (hover: hover) {
+  .lift:hover {
+    transform: translateY(-3px);
+    border-color: rgb(255 197 61 / 0.45);
+    box-shadow: 0 22px 50px -30px rgb(255 197 61 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.05);
+  }
+}
+
+/* Gradient text for the key word in headlines. */
+.text-beam {
+  background: linear-gradient(100deg, #fff4d1 0%, var(--signal) 45%, var(--signal-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Perforation for ticket-style passes. */
-.ticket-notch {
-  position: relative;
-}
+.ticket-notch { position: relative; }
 .ticket-notch::before,
 .ticket-notch::after {
   content: "";
   position: absolute;
   top: 50%;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
   background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--line);
   transform: translateY(-50%);
 }
-.ticket-notch::before { left: -11px; }
-.ticket-notch::after { right: -11px; }
+.ticket-notch::before { left: -12px; }
+.ticket-notch::after { right: -12px; }
+
+/* Data tables (admin). */
+.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+.data-table th {
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--faint); text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.data-table td { padding: 12px; border-bottom: 1px solid var(--line); }
+.data-table tbody tr { transition: background-color 150ms; }
+.data-table tbody tr:hover { background: rgb(255 255 255 / 0.02); }
+.data-table tbody tr:last-child td { border-bottom: 0; }
+
+/* ---------------------------------------------------------------- motion */
 
 @keyframes rise {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-rise { animation: rise 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.animate-rise { animation: rise 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+/* Staggered reveal: give children style={{"--i": n}}. */
+.stagger > * { animation: rise 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.page-enter { animation: page-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
 }
 .live-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+
+/* Floodlight beams sway very slightly, like light through night air. */
+@keyframes beam-sway {
+  0%, 100% { transform: rotate(0deg); opacity: 0.9; }
+  50% { transform: rotate(1.6deg); opacity: 1; }
+}
+.beam { transform-box: fill-box; transform-origin: top center; animation: beam-sway 7s ease-in-out infinite; }
+.beam-slow { animation-duration: 9s; animation-delay: -2s; }
+
+@keyframes twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
+.twinkle { animation: twinkle 3.2s ease-in-out infinite; }
+
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.floaty { animation: floaty 5s ease-in-out infinite; }
+
+@keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+.shimmer {
+  background: linear-gradient(90deg, var(--raised) 0%, #1f2430 40%, var(--raised) 80%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.85); }
+  60% { opacity: 1; transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+.pop-in { animation: pop-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-8px) rotate(0); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(26px) rotate(160deg); opacity: 0; }
+}
+.confetti > * { transform-box: fill-box; animation: confetti-fall 1.8s ease-out both; animation-delay: calc(var(--i, 0) * 90ms); }
+
+@keyframes ring-out {
+  from { transform: scale(0.7); opacity: 0.8; }
+  to { transform: scale(1.35); opacity: 0; }
+}
+.ring-out { transform-box: fill-box; transform-origin: center; animation: ring-out 1.6s ease-out infinite; }
+
+@keyframes scan-line { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(196px); } }
+.scan-line { animation: scan-line 2.6s ease-in-out infinite; }
+
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] > .details-body { animation: rise 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

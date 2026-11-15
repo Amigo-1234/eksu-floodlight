@@ -6,7 +6,8 @@ export const metadata: Metadata = { title: "Booking policies & privacy" };
 export default function PoliciesPage() {
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 text-[15px] leading-relaxed">
-      <h1 className="font-display text-5xl">Booking policies &amp; privacy</h1>
+      <p className="eyebrow">The fine print</p>
+      <h1 className="font-display mt-2 text-5xl">Booking policies &amp; privacy</h1>
       <p className="mt-3 text-muted">{brand.endorsementNotice}</p>
 
       <h2 className="font-display mt-10 text-2xl">Each facility sets its own rules</h2>

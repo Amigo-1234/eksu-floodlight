@@ -1,22 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Big_Shoulders, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Bricolage_Grotesque, JetBrains_Mono, Manrope } from "next/font/google";
 import { brand } from "@/lib/brand";
 import { EnvironmentBanner, isTestEnvironment } from "@/components/site/EnvironmentBanner";
 import "./globals.css";
 
-const display = Big_Shoulders({ variable: "--font-big-shoulders", subsets: ["latin"], weight: ["700", "800"] });
-const sans = Instrument_Sans({ variable: "--font-instrument-sans", subsets: ["latin"] });
+const display = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"], weight: "variable", axes: ["wdth", "opsz"] });
+const sans = Manrope({ variable: "--font-manrope", subsets: ["latin"] });
 const mono = JetBrains_Mono({ variable: "--font-jetbrains-mono", subsets: ["latin"], weight: ["500"] });
 
 export const metadata: Metadata = {
-  title: { default: `${brand.name} — ${brand.descriptor}`, template: `%s · ${brand.name}` },
-  description: `${brand.descriptor}. Find a sports facility, choose a time and book your next game.`,
+  title: { default: `${brand.name} — Book the lights`, template: `%s · ${brand.name}` },
+  description: `${brand.descriptor}. Find a facility, pick a slot and walk in with a digital pass.`,
   applicationName: brand.name,
   robots: isTestEnvironment() ? { index: false, follow: false } : undefined,
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b100f",
+  themeColor: "#050608",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

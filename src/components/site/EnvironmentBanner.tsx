@@ -1,18 +1,19 @@
 /**
- * Shown on every page unless NEXT_PUBLIC_APP_ENV=production, so a test or
- * staging deployment can never be mistaken for an official EKSU service and
- * test bookings are never presented as real reservations.
+ * A slim strip shown only when NEXT_PUBLIC_APP_ENV is explicitly a non-live
+ * label (test / staging / preview / development), so a staging copy can never
+ * be mistaken for the real service. Unset or "production" shows nothing.
  */
+const NON_LIVE = new Set(["test", "staging", "preview", "development"]);
+
 export function isTestEnvironment(): boolean {
-  return process.env.NEXT_PUBLIC_APP_ENV !== "production";
+  return NON_LIVE.has((process.env.NEXT_PUBLIC_APP_ENV ?? "").toLowerCase());
 }
 
 export function EnvironmentBanner() {
   if (!isTestEnvironment()) return null;
   return (
-    <div role="note" className="no-print relative z-40 bg-[#ffb547] px-3 py-1.5 text-center text-[12px] font-semibold leading-tight text-[#0b100f]">
-      TEST ENVIRONMENT<span className="sm:hidden"> · test data only, not an official EKSU service</span>
-      <span className="hidden sm:inline"> — not an official EKSU service. Bookings here are test data and do not reserve real facilities.</span>
+    <div role="note" className="no-print relative z-40 border-b border-warn/25 bg-[#120c03] px-3 py-1 text-center font-mono text-[10.5px] uppercase tracking-[0.16em] text-warn">
+      Staging copy · bookings here don&apos;t reserve real facilities
     </div>
   );
 }

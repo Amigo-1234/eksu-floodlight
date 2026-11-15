@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Chip, EmptyState } from "@/components/ui";
+import { Chip, EmptyState, buttonClass } from "@/components/ui";
+import { ArtEmpty } from "@/components/brand/Illustrations";
 import { getPublicSchedule, type ScheduleItem } from "@/lib/data";
 import { addDays, dayLabel, formatDate, formatRange, isYmd, todayInTz } from "@/lib/format";
 import { activityLabel, ACTIVITY_TYPE_LABEL } from "@/lib/status";
@@ -35,19 +36,19 @@ export default async function SchedulePage(props: PageProps<"/schedule">) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-signal">On the fields</p>
-      <h1 className="font-display text-5xl sm:text-6xl">Schedule</h1>
+    <div className="mx-auto w-full max-w-4xl px-4 py-12">
+      <p className="eyebrow flex items-center gap-2"><span className="live-dot size-1.5 rounded-full bg-signal" aria-hidden="true" />On the fields</p>
+      <h1 className="font-display mt-3 text-5xl sm:text-6xl">What&apos;s <span className="text-beam">on.</span></h1>
       <p className="mt-2 max-w-xl text-muted">
         Confirmed bookings whose organisers chose to list them publicly. Live and full-time status appear only when facility staff record them.
       </p>
 
       <div className="mt-6 flex items-center justify-between gap-3">
-        <Link href={`/schedule?from=${addDays(start, -7)}`} className="inline-flex h-11 items-center gap-1 rounded-xl border border-line px-3 text-sm font-medium hover:bg-raised">
+        <Link href={`/schedule?from=${addDays(start, -7)}`} className={buttonClass("outline", "md")}>
           <ChevronLeft className="size-4" aria-hidden="true" />Earlier
         </Link>
         <p className="text-sm font-medium tabular">{formatDate(lagosMidnightIso(start), undefined, "short")} – {formatDate(lagosMidnightIso(addDays(end, -1)), undefined, "short")}</p>
-        <Link href={`/schedule?from=${end}`} className="inline-flex h-11 items-center gap-1 rounded-xl border border-line px-3 text-sm font-medium hover:bg-raised">
+        <Link href={`/schedule?from=${end}`} className={buttonClass("outline", "md")}>
           Later<ChevronRight className="size-4" aria-hidden="true" />
         </Link>
       </div>
@@ -56,7 +57,7 @@ export default async function SchedulePage(props: PageProps<"/schedule">) {
         {failed ? (
           <EmptyState title="Couldn't load the schedule" body="Please refresh the page in a moment." />
         ) : items.length === 0 ? (
-          <EmptyState title="Nothing listed this week" body="No publicly listed activities in these dates." />
+          <EmptyState art={<ArtEmpty className="h-28 w-auto" />} title="Quiet week on the fields" body="No publicly listed games or sessions in these dates. Teams can choose to list their bookings here." />
         ) : (
           <ol className="flex flex-col gap-6">
             {days.filter((d) => byDay.has(d)).map((d) => {
@@ -71,8 +72,8 @@ export default async function SchedulePage(props: PageProps<"/schedule">) {
                       const st = activityLabel(m.activity_status as ActivityStatus);
                       const showScore = m.home_score != null && m.away_score != null;
                       return (
-                        <li key={m.booking_id} className="grid grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-4">
-                          <div className="font-display text-2xl tabular">{formatRange(m.starts_at, m.ends_at).split(" – ")[0]}</div>
+                        <li key={m.booking_id} className="panel lift grid grid-cols-[72px_minmax(0,1fr)] gap-3 p-4">
+                          <div className="font-display text-2xl tabular text-signal">{formatRange(m.starts_at, m.ends_at).split(" – ")[0]}</div>
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
                               <span>{ACTIVITY_TYPE_LABEL[m.activity_type as ActivityType]}</span>

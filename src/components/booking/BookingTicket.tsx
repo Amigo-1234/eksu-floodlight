@@ -16,16 +16,17 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
   const teams = [b.team_name, b.opponent_name].filter(Boolean).join(" vs ");
 
   return (
-    <article aria-label={`Booking ${b.reference}`} className="print-plain mx-auto w-full max-w-md overflow-hidden rounded-[22px] border border-line bg-surface shadow-[0_30px_80px_-40px_rgb(198_241_53/0.35)]">
-      <div className={confirmed ? "bg-signal text-signal-ink" : "bg-raised text-ink"}>
-        <div className="flex items-center justify-between px-5 pt-4 text-[11px] font-semibold uppercase tracking-[0.14em]">
-          <span className="flex items-center gap-2"><LogoMark size={20} />{brand.name}</span>
-          <span>{confirmed ? "Booking receipt" : "Booking request"}</span>
+    <article aria-label={`Booking ${b.reference}`} className={`print-plain mx-auto w-full max-w-md overflow-hidden rounded-[28px] bg-surface ${confirmed ? "glow-ring" : "border border-line-strong"}`}>
+      <div className={`relative overflow-hidden ${confirmed ? "bg-[linear-gradient(135deg,#ffd166,#ffc53d_45%,#ff9f1c)] text-signal-ink" : "bg-raised text-ink"}`}>
+        <div className="pitch-lines pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" />
+        <div className="relative flex items-center justify-between px-5 pt-4 font-mono text-[10.5px] font-medium uppercase tracking-[0.18em]">
+          <span className="flex items-center gap-2"><LogoMark size={20} plain={confirmed} />{brand.name}</span>
+          <span>{confirmed ? "Entry pass" : "Booking request"}</span>
         </div>
-        <div className="px-5 pb-5 pt-3">
-          <p className="font-display text-[64px] leading-[0.85] tabular">{formatRange(start, end, tz).split(" – ")[0]}</p>
+        <div className="relative px-5 pb-6 pt-4">
+          <p className="font-display text-[68px] leading-[0.85] tracking-[-0.05em] tabular">{formatRange(start, end, tz).split(" – ")[0]}</p>
           <p className="mt-1 text-sm font-semibold">{formatDate(start, tz)} · until {formatRange(start, end, tz).split(" – ")[1]}</p>
-          <p className="font-display mt-3 text-[26px] leading-none">{b.facilities?.name}</p>
+          <p className="font-display mt-4 text-[26px] leading-none">{b.facilities?.name}</p>
           <p className="mt-1 flex items-center gap-1 text-sm opacity-80">
             {b.playing_surfaces?.name}{b.facilities?.location_label && <><span aria-hidden="true">·</span><MapPin className="size-3.5" aria-hidden="true" />{b.facilities.location_label}</>}
           </p>
@@ -45,7 +46,8 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
 
         {pass.available ? (
           <div className="flex flex-col items-center gap-3">
-            <div className="rounded-2xl bg-white p-3" aria-label="Entry pass QR code" role="img">
+            <div className="relative rounded-[22px] bg-white p-3 shadow-[0_0_60px_-10px_rgb(255_197_61/0.5)]" aria-label="Entry pass QR code" role="img">
+              <span className="pointer-events-none absolute -inset-2 rounded-[28px] border-2 border-dashed border-signal/40" aria-hidden="true" />
               <div className="size-[220px] [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: pass.qrSvg }} />
             </div>
             {!pass.liveGateAdmission && (
@@ -56,7 +58,7 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
             )}
           </div>
         ) : confirmed ? (
-          <p className="rounded-xl border border-line bg-bg p-3 text-xs text-muted">
+          <p className="rounded-2xl border border-line bg-bg p-3 text-xs text-muted">
             This facility hasn&apos;t enabled digital entry passes. This receipt confirms your reservation; follow the facility&apos;s instructions on arrival.
           </p>
         ) : (
@@ -68,7 +70,7 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
           <div className="col-span-2">
             <dt className="text-xs text-muted">Booking reference</dt>
-            <dd className="font-mono text-xl tracking-[0.08em]">{b.reference}</dd>
+            <dd className="font-mono text-xl tracking-[0.1em] text-signal">{b.reference}</dd>
           </div>
           {receipt && (
             <div className="col-span-2"><dt className="text-xs text-muted">Receipt number</dt><dd className="font-mono">{receipt.receipt_number}</dd></div>
@@ -82,8 +84,8 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
         </dl>
 
         {b.facilities?.entry_instructions && confirmed && (
-          <div className="rounded-xl bg-bg p-3 text-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">On arrival</p>
+          <div className="rounded-2xl border border-line bg-bg p-4 text-sm">
+            <p className="eyebrow">On arrival</p>
             <p className="mt-1 whitespace-pre-line">{b.facilities.entry_instructions}</p>
           </div>
         )}

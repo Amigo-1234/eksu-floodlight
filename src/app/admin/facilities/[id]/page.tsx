@@ -38,7 +38,7 @@ export default async function FacilityAdminPage(props: PageProps<"/admin/facilit
             {d.facility.is_dev_fixture && <DevFixtureBadge />}
           </div>
         </div>
-        {d.facility.is_active && <Link href={`/facilities/${d.facility.slug}`} className="inline-flex items-center gap-1 text-sm font-semibold text-pitch">Public page<ExternalLink className="size-3.5" aria-hidden="true" /></Link>}
+        {d.facility.is_active && <Link href={`/facilities/${d.facility.slug}`} className="inline-flex items-center gap-1 text-sm font-semibold text-signal">Public page<ExternalLink className="size-3.5" aria-hidden="true" /></Link>}
       </div>
 
       {!d.readiness.bookable && (
