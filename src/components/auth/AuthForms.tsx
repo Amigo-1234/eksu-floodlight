@@ -26,6 +26,7 @@ function authMessage(msg: string): string {
   if (/email not confirmed/i.test(msg)) return "Please confirm your email address first — check your inbox.";
   if (/already registered|already exists/i.test(msg)) return "An account already exists for that email. Try signing in.";
   if (/rate limit|too many/i.test(msg)) return "Too many attempts. Please wait a few minutes.";
+  if (/signups? not allowed|signup.*disabled/i.test(msg)) return "New accounts are by invitation only during testing. Please sign in with the account you were given.";
   return "We couldn't complete that. Please try again.";
 }
 
