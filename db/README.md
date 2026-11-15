@@ -30,10 +30,29 @@ FLOODLIGHT_TEST_PG=postgres://postgres@127.0.0.1:54329/postgres npm run test:coe
 
 ## Applying remotely (after approval only)
 
-1. Back up: confirm a recent automatic backup exists (Dashboard → Database →
-   Backups). On the free plan, also take a logical dump of `public`,
-   `private`, `storage` metadata and `auth` (`supabase db dump`) and store it
-   outside the repo.
+1. Back up and prove the backup restores (read-only against live; the
+   connection file `~/.eksu/sports-hub-db.env` is chmod 600 and never printed):
+   ```bash
+   scripts/backup-sports-hub.sh                      # → ~/Documents/eksu-backups/<UTC>/ (chmod 700)
+   RESTORE_PGDATA=<scratch dir> scripts/verify-sports-hub-backup.sh <BACKUP_DIR>
+   RESTORE_PGDATA=<scratch dir> scripts/verify-sports-hub-backup-suite.sh <BACKUP_DIR>
+   ```
+   The first verifier restores everything into an isolated local PostgreSQL 17
+   and compares every table with live (rows and content checksums). The second
+   restores the backed-up schema with Sports Hub's own seed and runs its 924
+   pgTAP assertions. (The suite needs the dev seed's fixed-UUID fixtures, which
+   production data doesn't contain.)
+
+   **Restore pitfalls (also apply to a real recovery):**
+   - `pg_dump` stores table privileges only as GRANTs on top of built-in
+     defaults. Before restoring into a schema with Supabase's default
+     privileges, run `alter default privileges in schema public revoke all on
+     tables/sequences/functions from anon, authenticated, service_role`.
+     Otherwise `anon`/`authenticated` end up with ALL on every restored table.
+   - `app.dump` doesn't contain Sports Hub's objects on platform tables: the
+     `on_auth_user_created` trigger on `auth.users` and its policies on
+     `storage.objects` and `realtime.messages`. The verifier recreates them from
+     their live definitions (`restore-platform-objects.sql` in the backup folder).
 2. `npm run db:bundle` → apply `db/dist/floodlight_bundle.sql` as ONE
    transaction (SQL editor, or the MCP `execute_sql` tool) — **not**
    `supabase db push` and **not** `apply_migration`.
