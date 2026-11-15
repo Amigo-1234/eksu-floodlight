@@ -44,6 +44,9 @@ const MESSAGES: Record<string, string> = {
   INVALID_PERIOD: "The end must be after the start.",
   INVALID_RANGE: "Choose a range of up to 92 days.",
   IDEMPOTENCY_KEY_REQUIRED: "Request error. Please try again.",
+  EMAIL_NOT_VERIFIED: "Please confirm your email address before booking. Check your inbox for the confirmation link.",
+  BOOKING_RATE_LIMITED: "You've made a lot of booking requests in the last hour. Please wait a while and try again.",
+  UPCOMING_BOOKING_LIMIT: "You already have the maximum number of upcoming bookings. Cancel or complete one before booking again.",
 };
 
 export function errorCode(e: unknown): string | null {

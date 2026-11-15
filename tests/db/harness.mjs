@@ -93,10 +93,10 @@ export async function rpc(pool, user, sql, params = []) {
   }
 }
 
-export async function createUser(pool, email, fullName = "Test User") {
+export async function createUser(pool, email, fullName = "Test User", { verified = true } = {}) {
   const id = randomUUID();
-  await pool.query("insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3)",
-    [id, email, { full_name: fullName }]);
+  await pool.query("insert into auth.users (id, email, raw_user_meta_data, email_confirmed_at) values ($1, $2, $3, $4)",
+    [id, email, { full_name: fullName }, verified ? new Date() : null]);
   return id;
 }
 
