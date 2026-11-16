@@ -2,7 +2,7 @@ import { CircleAlert, MapPin } from "lucide-react";
 import { Chip, DevFixtureBadge } from "@/components/ui";
 import { LogoMark } from "@/components/brand/Logo";
 import { brand } from "@/lib/brand";
-import { formatDate, formatNaira, formatRange, parseRange } from "@/lib/format";
+import { formatDate, formatDuration, formatNaira, formatRange, minutesBetween, parseRange } from "@/lib/format";
 import { ACTIVITY_TYPE_LABEL, APPROVAL_LABEL, bookingHeadline, PAYMENT_LABEL } from "@/lib/status";
 import type { PassInfo } from "@/lib/bookings";
 import type { Booking, Receipt } from "@/lib/types";
@@ -25,7 +25,7 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
         </div>
         <div className="relative px-5 pb-6 pt-4">
           <p className="font-display text-[68px] leading-[0.85] tracking-[-0.05em] tabular">{formatRange(start, end, tz).split(" – ")[0]}</p>
-          <p className="mt-1 text-sm font-semibold">{formatDate(start, tz)} · until {formatRange(start, end, tz).split(" – ")[1]}</p>
+          <p className="mt-1 text-sm font-semibold">{formatDate(start, tz)} · until {formatRange(start, end, tz).split(" – ")[1]} · {formatDuration(minutesBetween(start, end))} session</p>
           <p className="font-display mt-4 text-[26px] leading-none">{b.facilities?.name}</p>
           <p className="mt-1 flex items-center gap-1 text-sm opacity-80">
             {b.playing_surfaces?.name}{b.facilities?.location_label && <><span aria-hidden="true">·</span><MapPin className="size-3.5" aria-hidden="true" />{b.facilities.location_label}</>}
@@ -80,7 +80,7 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
           {b.activity_title && <div className="col-span-2"><dt className="text-xs text-muted">Title</dt><dd className="font-medium">{b.activity_title}</dd></div>}
           {teams && <div className="col-span-2"><dt className="text-xs text-muted">Teams</dt><dd className="font-medium">{teams}</dd></div>}
           <div><dt className="text-xs text-muted">Approval</dt><dd className="font-medium">{APPROVAL_LABEL[b.approval_status]}</dd></div>
-          {b.amount_due_kobo != null && <div><dt className="text-xs text-muted">Amount due</dt><dd className="font-mono">{formatNaira(b.amount_due_kobo)}</dd></div>}
+          {b.amount_due_kobo != null && <div><dt className="text-xs text-muted">Amount (per session)</dt><dd className="font-mono">{formatNaira(b.amount_due_kobo)}</dd></div>}
         </dl>
 
         {b.facilities?.entry_instructions && confirmed && (

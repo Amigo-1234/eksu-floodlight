@@ -8,7 +8,7 @@ import { CalendarDays, Check, ChevronLeft, Loader2, RefreshCw } from "lucide-rea
 import { Button, Card, Chip, Field, Input, Notice, Select, Skeleton, Textarea, cx } from "@/components/ui";
 import { loadAvailability, submitBooking } from "@/app/(customer)/actions";
 import { bookingDetailsSchema, type BookingDetails } from "@/lib/validation";
-import { addDays, dayLabel, formatDate, formatNaira, formatRange, formatTime } from "@/lib/format";
+import { addDays, dayLabel, formatDate, formatDuration, formatNaira, formatRange, formatTime } from "@/lib/format";
 import { ACTIVITY_TYPE_LABEL, PAYMENT_MODE_LABEL, SLOT_STATE } from "@/lib/status";
 import type { AvailabilitySlot, BookingPolicy } from "@/lib/types";
 
@@ -168,7 +168,7 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display text-3xl">Choose a time</h2>
-              <p className="text-sm text-muted">{formatDate(`${day}T12:00:00Z`, "UTC")} · {policy.slot_minutes}-minute slots</p>
+              <p className="text-sm text-muted">{formatDate(`${day}T12:00:00Z`, "UTC")} · {formatDuration(policy.slot_minutes)} sessions{price && policy.payment_mode !== "free" ? ` · ${formatNaira(price.amount_kobo)} per session` : ""}</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => refresh(day)} disabled={loading} aria-label="Refresh availability">
               <RefreshCw className={cx("size-4", loading && "animate-spin")} aria-hidden="true" />
@@ -320,7 +320,8 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
                 ["Contact", [form.getValues("organizerPhone"), form.getValues("organizerEmail")].filter(Boolean).join(" · ")],
                 ["Public listing", form.getValues("publicListing") ? "Yes" : "No"],
                 ["Payment", policy.payment_mode === "unconfigured" ? "Method to be confirmed — nothing is charged now" : PAYMENT_MODE_LABEL[policy.payment_mode]],
-                ["Price", amount != null ? `${formatNaira(amount)}${policy.payment_mode === "deposit" ? " deposit" : ` for ${policy.slot_minutes === 60 ? "1 hour" : `${policy.slot_minutes} min`}`}` : ""],
+                ["Duration", policy.slot_minutes ? `${formatDuration(policy.slot_minutes)} session` : ""],
+                ["Price", amount != null ? `${formatNaira(amount)}${policy.payment_mode === "deposit" ? " deposit" : " per session"}` : ""],
               ] as const).filter(([, v]) => v).map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4 px-4 py-2.5">
                   <dt className="text-muted">{k}</dt><dd className="text-right font-medium">{v}</dd>

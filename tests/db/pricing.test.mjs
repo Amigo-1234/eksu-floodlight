@@ -65,3 +65,24 @@ test("free facilities still charge nothing", async () => {
   const r = (await db.pool.query("select amount_due_kobo a, payment_status p from floodlight.bookings where id = $1", [bk.value.id])).rows[0];
   assert.equal(r.a, null); assert.equal(r.p, "not_required");
 });
+
+test("75-minute sessions in 07:00–18:00: eight whole sessions, no partial last slot, one price each", async () => {
+  const f = await createFacility(db.pool, { slotMinutes: 75, policy: { payment_mode: "unconfigured", approval_mode: "required" } });
+  await db.pool.query("delete from floodlight.operating_hours where facility_id = $1", [f.id]);
+  for (let d = 0; d < 7; d++) {
+    await db.pool.query("insert into floodlight.operating_hours (facility_id, weekday, opens_at, closes_at) values ($1, $2, '07:00', '18:00')", [f.id, d]);
+  }
+  await price(f.id, 400000);
+  const day = (await db.pool.query("select ((now() at time zone 'Africa/Lagos')::date + 2)::text d")).rows[0].d;
+  const slots = (await rpc(db.pool, null, "select to_char(slot_start at time zone 'Africa/Lagos','HH24:MI') s, to_char(slot_end at time zone 'Africa/Lagos','HH24:MI') e from floodlight.facility_availability($1, $2::date) order by slot_start", [f.id, day])).rows;
+  assert.deepEqual(slots.map((r) => `${r.s}-${r.e}`),
+    ["07:00-08:15", "08:15-09:30", "09:30-10:45", "10:45-12:00", "12:00-13:15", "13:15-14:30", "14:30-15:45", "15:45-17:00"]);
+  const u = await createUser(db.pool, `s75-${randomUUID()}@example.test`);
+  const at = async (hhmm) => (await db.pool.query(`select ($1 || ' ${hhmm} Africa/Lagos')::timestamptz t`, [day])).rows[0].t;
+  assert.equal(code(await book(u, f.surfaces[0], await at("17:00"))), "INVALID_SLOT", "leftover hour is not bookable");
+  assert.equal(code(await book(u, f.surfaces[0], await at("08:00"))), "INVALID_SLOT", "misaligned start refused");
+  const ok = await book(u, f.surfaces[0], await at("15:45"));
+  assert.equal(code(ok), "OK");
+  const r = (await db.pool.query("select amount_due_kobo::int a, extract(epoch from upper(period) - lower(period))::int / 60 m from floodlight.bookings where id = $1", [ok.value.id])).rows[0];
+  assert.deepEqual(r, { a: 400000, m: 75 });
+});

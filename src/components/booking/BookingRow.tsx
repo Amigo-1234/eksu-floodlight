@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Chip } from "@/components/ui";
-import { formatDate, formatNaira, formatRange, parseRange } from "@/lib/format";
+import { formatDate, formatDuration, formatNaira, formatRange, minutesBetween, parseRange } from "@/lib/format";
 import { bookingHeadline } from "@/lib/status";
 import type { Booking } from "@/lib/types";
 
@@ -15,6 +15,7 @@ export function BookingRow({ b, href }: { b: Booking; href: string }) {
         <div className="flex w-[68px] shrink-0 flex-col items-center justify-center rounded-2xl border border-line bg-bg py-2 text-center">
           <p className="font-display text-[22px] leading-none tabular text-signal">{formatRange(start, end, tz).split(" – ")[0]}</p>
           <p className="mt-1 text-[11px] text-muted">{formatDate(start, tz, "short")}</p>
+          <p className="text-[10px] text-faint">{formatDuration(minutesBetween(start, end))}</p>
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate font-bold">{b.facilities?.name}<span className="font-normal text-muted"> · {b.playing_surfaces?.name}</span></p>

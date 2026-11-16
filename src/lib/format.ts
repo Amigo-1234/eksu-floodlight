@@ -65,3 +65,15 @@ export function parseRange(range: string): { start: string; end: string } {
 }
 
 export const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
+
+/** Human session length: 60 → "1 hr", 75 → "75 mins", 90 → "90 mins". */
+export function formatDuration(minutes: number | null | undefined): string {
+  if (!minutes || minutes <= 0) return "";
+  if (minutes % 60 === 0) return minutes === 60 ? "1 hr" : `${minutes / 60} hrs`;
+  return `${minutes} mins`;
+}
+
+/** Whole minutes between two instants (booking length from its stored period). */
+export function minutesBetween(start: string, end: string): number {
+  return Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000);
+}

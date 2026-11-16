@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, Clock3, MapPin, ShieldCheck, Zap } from "lucide-react";
 import { Chip } from "@/components/ui";
 import { facilityImageUrl, type FacilityCardData } from "@/lib/data";
-import { formatNaira } from "@/lib/format";
+import { formatDuration, formatNaira } from "@/lib/format";
 
 /** Night-pitch artwork used when a facility has no photo yet (never a stock photo). */
 export function PitchArt({ sport, className = "" }: { sport?: string; className?: string }) {
@@ -86,11 +86,11 @@ export function FacilityCard({ f }: { f: FacilityCardData }) {
           : f.slotPriceKobo != null && (
             <p className="flex items-baseline gap-1.5">
               <span className="font-display text-2xl text-signal tabular">{formatNaira(f.slotPriceKobo)}</span>
-              <span className="text-xs font-semibold text-muted">per {f.policy?.slot_minutes === 60 ? "hour" : `${f.policy?.slot_minutes ?? ""}-min slot`}</span>
+              <span className="text-xs font-semibold text-muted">{f.policy?.slot_minutes ? `/ ${formatDuration(f.policy.slot_minutes)} session` : "per session"}</span>
             </p>
           )}
         <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1.5 border-t border-line pt-3 text-[12.5px] font-semibold text-muted">
-          {f.policy?.slot_minutes && <span className="inline-flex items-center gap-1.5"><Clock3 className="size-3.5 text-signal" aria-hidden="true" />{f.policy.slot_minutes} min slots</span>}
+          {f.policy?.slot_minutes && <span className="inline-flex items-center gap-1.5"><Clock3 className="size-3.5 text-signal" aria-hidden="true" />{formatDuration(f.policy.slot_minutes)} sessions</span>}
           {f.policy && (
             <span className="inline-flex items-center gap-1.5">
               {f.policy.approval_mode === "required"

@@ -107,7 +107,7 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
             <Card className="p-4">
               <h2 className="font-display mb-2 flex items-center gap-2 text-xl"><Info className="size-5 text-signal" aria-hidden="true" />Booking rules</h2>
               <dl>
-                {policyLine("Slot length", policy?.slot_minutes ? `${policy.slot_minutes} minutes` : null)}
+                {policyLine("Session length", policy?.slot_minutes ? `${policy.slot_minutes} minutes` : null)}
                 {policyLine("Confirmation", policy ? (policy.approval_mode === "required" ? "Reviewed by staff" : "Instant") : null)}
                 {policyLine("Payment", policy ? (policy.payment_mode === "unconfigured" ? (prices.length ? "Method to be confirmed" : null) : PAYMENT_MODE_LABEL[policy.payment_mode]) : null)}
                 {policyLine("Book up to", policy?.max_advance_days ? `${policy.max_advance_days} days ahead` : null)}

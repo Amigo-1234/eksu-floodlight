@@ -7,7 +7,7 @@ import { Card, Chip } from "@/components/ui";
 import { BookingAdminActions } from "@/components/admin/BookingAdminActions";
 import { requireAdmin } from "@/lib/admin";
 import { BOOKING_SELECT, getBookingEvents } from "@/lib/bookings";
-import { formatDate, formatDateTime, formatNaira, formatRange, parseRange } from "@/lib/format";
+import { formatDate, formatDateTime, formatDuration, formatNaira, formatRange, minutesBetween, parseRange } from "@/lib/format";
 import { ACTIVITY_TYPE_LABEL, APPROVAL_LABEL, bookingHeadline, PAYMENT_LABEL } from "@/lib/status";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { nowMs } from "@/lib/clock";
@@ -58,7 +58,8 @@ export default async function AdminBookingDetail(props: PageProps<"/admin/bookin
                 ["Teams", [b.team_name, b.opponent_name].filter(Boolean).join(" vs ")], ["Purpose", b.purpose],
                 ["Source", b.source === "customer" ? "Customer request" : b.source === "walk_in" ? "Walk-in (staff)" : "Staff booking"],
                 ["Approval", APPROVAL_LABEL[b.approval_status]], ["Payment", PAYMENT_LABEL[b.payment_status]],
-                ["Amount due", b.amount_due_kobo != null ? formatNaira(b.amount_due_kobo) : null],
+                ["Duration", formatDuration(minutesBetween(start, end))],
+                ["Amount due", b.amount_due_kobo != null ? `${formatNaira(b.amount_due_kobo)} (per session)` : null],
                 ["Public listing", b.public_listing ? "Yes" : "No"], ["Notes", b.notes], ["Decision note", b.decision_reason],
                 ["Cancellation reason", b.cancellation_reason],
               ] as const).filter(([, v]) => v).map(([k, v]) => (
