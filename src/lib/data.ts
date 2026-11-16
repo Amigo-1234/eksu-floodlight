@@ -13,6 +13,8 @@ export type FacilityCardData = Facility & {
   surfaces: number;
   policy: Pick<BookingPolicy, "slot_minutes" | "approval_mode" | "payment_mode"> | null;
   freeToday: number | null;
+  /** Default active price for one booked slot, in kobo (null when free or not published). */
+  slotPriceKobo: number | null;
 };
 
 export async function listSportCategories(): Promise<SportCategory[]> {
@@ -28,7 +30,7 @@ export async function listPublicFacilities(today: string): Promise<FacilityCardD
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("facilities")
-    .select(`${FACILITY_COLS}, playing_surfaces(id, is_active), booking_policies(slot_minutes, approval_mode, payment_mode), facility_images(storage_path, sort_order)`)
+    .select(`${FACILITY_COLS}, playing_surfaces(id, is_active), booking_policies(slot_minutes, approval_mode, payment_mode), facility_images(storage_path, sort_order), facility_prices(amount_kobo, is_default, is_active)`)
     .eq("is_active", true)
     .order("is_dev_fixture", { ascending: true })
     .order("name");
@@ -37,6 +39,7 @@ export async function listPublicFacilities(today: string): Promise<FacilityCardD
     playing_surfaces: { id: string; is_active: boolean }[];
     booking_policies: FacilityCardData["policy"] | FacilityCardData["policy"][];
     facility_images: { storage_path: string; sort_order: number }[];
+    facility_prices: { amount_kobo: number; is_default: boolean; is_active: boolean }[];
   })[];
   return Promise.all(rows.map(async (f) => {
     const [{ data: readiness }, { data: slots }] = await Promise.all([
@@ -52,6 +55,8 @@ export async function listPublicFacilities(today: string): Promise<FacilityCardD
       surfaces: f.playing_surfaces.filter((s) => s.is_active).length,
       readiness: (readiness as Readiness) ?? { bookable: false, missing: [] },
       freeToday: slots ? (slots as AvailabilitySlot[]).filter((s) => s.state === "available").length : null,
+      slotPriceKobo: policy?.payment_mode === "free" ? null
+        : (f.facility_prices ?? []).find((p) => p.is_default && p.is_active)?.amount_kobo ?? null,
     };
   }));
 }

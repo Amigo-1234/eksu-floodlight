@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Chip } from "@/components/ui";
-import { formatDate, formatRange, parseRange } from "@/lib/format";
+import { formatDate, formatNaira, formatRange, parseRange } from "@/lib/format";
 import { bookingHeadline } from "@/lib/status";
 import type { Booking } from "@/lib/types";
 
@@ -19,7 +19,7 @@ export function BookingRow({ b, href }: { b: Booking; href: string }) {
         <div className="min-w-0 flex-1">
           <p className="truncate font-bold">{b.facilities?.name}<span className="font-normal text-muted"> · {b.playing_surfaces?.name}</span></p>
           <p className="truncate text-sm text-muted">{b.activity_title ?? ([b.team_name, b.opponent_name].filter(Boolean).join(" vs ") || b.organizer_name)}</p>
-          <p className="mt-1 font-mono text-xs text-faint">{b.reference}</p>
+          <p className="mt-1 flex flex-wrap gap-x-3 font-mono text-xs text-faint"><span>{b.reference}</span>{b.amount_due_kobo != null && <span className={b.payment_status === "paid" || b.payment_status === "waived" ? "" : "text-signal"}>{formatNaira(b.amount_due_kobo)}{b.payment_status === "paid" ? " · paid" : b.payment_status === "waived" ? " · waived" : " · unpaid"}</span>}</p>
         </div>
         <Chip tone={head.tone}>{head.label}</Chip>
         <ChevronRight className="size-4 shrink-0 text-faint transition-transform group-hover:translate-x-0.5" aria-hidden="true" />

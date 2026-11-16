@@ -105,7 +105,7 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
     });
   };
 
-  const amount = price ? (policy.payment_mode === "deposit" ? price.deposit_kobo ?? price.amount_kobo : price.amount_kobo) : null;
+  const amount = price && policy.payment_mode !== "free" ? (policy.payment_mode === "deposit" ? price.deposit_kobo ?? price.amount_kobo : price.amount_kobo) : null;
 
   return (
     <div className="mt-6">
@@ -319,8 +319,8 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
                 ["Organiser", form.getValues("organizerName")],
                 ["Contact", [form.getValues("organizerPhone"), form.getValues("organizerEmail")].filter(Boolean).join(" · ")],
                 ["Public listing", form.getValues("publicListing") ? "Yes" : "No"],
-                ["Payment", policy.payment_mode === "unconfigured" ? "Not yet set by the facility" : PAYMENT_MODE_LABEL[policy.payment_mode]],
-                ["Price", amount != null ? `${formatNaira(amount)}${policy.payment_mode === "deposit" ? " deposit" : ""}` : ""],
+                ["Payment", policy.payment_mode === "unconfigured" ? "Method to be confirmed — nothing is charged now" : PAYMENT_MODE_LABEL[policy.payment_mode]],
+                ["Price", amount != null ? `${formatNaira(amount)}${policy.payment_mode === "deposit" ? " deposit" : ` for ${policy.slot_minutes === 60 ? "1 hour" : `${policy.slot_minutes} min`}`}` : ""],
               ] as const).filter(([, v]) => v).map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4 px-4 py-2.5">
                   <dt className="text-muted">{k}</dt><dd className="text-right font-medium">{v}</dd>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, Clock3, MapPin, ShieldCheck, Zap } from "lucide-react";
 import { Chip } from "@/components/ui";
 import { facilityImageUrl, type FacilityCardData } from "@/lib/data";
+import { formatNaira } from "@/lib/format";
 
 /** Night-pitch artwork used when a facility has no photo yet (never a stock photo). */
 export function PitchArt({ sport, className = "" }: { sport?: string; className?: string }) {
@@ -80,6 +81,14 @@ export function FacilityCard({ f }: { f: FacilityCardData }) {
           </span>
         </div>
         {f.location_label && <p className="-mt-1 flex items-center gap-1.5 text-sm text-muted"><MapPin className="size-3.5" aria-hidden="true" />{f.location_label}</p>}
+        {f.policy?.payment_mode === "free"
+          ? <p className="font-display text-xl text-signal">Free</p>
+          : f.slotPriceKobo != null && (
+            <p className="flex items-baseline gap-1.5">
+              <span className="font-display text-2xl text-signal tabular">{formatNaira(f.slotPriceKobo)}</span>
+              <span className="text-xs font-semibold text-muted">per {f.policy?.slot_minutes === 60 ? "hour" : `${f.policy?.slot_minutes ?? ""}-min slot`}</span>
+            </p>
+          )}
         <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1.5 border-t border-line pt-3 text-[12.5px] font-semibold text-muted">
           {f.policy?.slot_minutes && <span className="inline-flex items-center gap-1.5"><Clock3 className="size-3.5 text-signal" aria-hidden="true" />{f.policy.slot_minutes} min slots</span>}
           {f.policy && (

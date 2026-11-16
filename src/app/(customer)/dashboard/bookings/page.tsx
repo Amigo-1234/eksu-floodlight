@@ -5,7 +5,7 @@ import { ArtTicket } from "@/components/brand/Illustrations";
 import { BookingRow } from "@/components/booking/BookingRow";
 import { requireViewer } from "@/lib/auth";
 import { listOwnBookings } from "@/lib/bookings";
-import { parseRange } from "@/lib/format";
+import { formatNaira, parseRange } from "@/lib/format";
 import type { Booking } from "@/lib/types";
 import { nowMs } from "@/lib/clock";
 
@@ -35,10 +35,24 @@ export default async function MyBookingsPage(props: PageProps<"/dashboard/bookin
       return active === "upcoming" ? d : -d;
     });
 
+  // Outstanding amount, summed from the amounts the database stored on each booking (never client-computed).
+  const unpaid = all.filter((b) => b.amount_due_kobo != null && ["held", "pending", "confirmed"].includes(b.status)
+    && !["paid", "waived", "not_required"].includes(b.payment_status));
+  const outstanding = unpaid.reduce((n, b) => n + (b.amount_due_kobo ?? 0), 0);
+
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8">
       <p className="eyebrow">Your passes &amp; receipts</p>
       <h1 className="font-display mt-2 text-5xl">My bookings</h1>
+      {unpaid.length > 0 && (
+        <div className="panel mt-5 flex items-center justify-between gap-3 p-4">
+          <div>
+            <p className="text-xs font-semibold text-muted">Outstanding for {unpaid.length} booking{unpaid.length === 1 ? "" : "s"}</p>
+            <p className="text-[11px] text-faint">Payment method will be confirmed by the facility. Nothing has been charged.</p>
+          </div>
+          <p className="font-display text-3xl tabular text-signal">{formatNaira(outstanding)}</p>
+        </div>
+      )}
       <nav aria-label="Booking lists" className="mt-6 grid grid-cols-3 gap-1 rounded-2xl border border-line bg-surface p-1">
         {TABS.map((t) => (
           <Link key={t.key} href={`/dashboard/bookings?tab=${t.key}`} aria-current={t.key === active ? "page" : undefined}

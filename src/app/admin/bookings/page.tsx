@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { FacilitySwitcher } from "@/components/admin/FacilitySwitcher";
 import { pickFacility, requireAdmin } from "@/lib/admin";
 import { BOOKING_SELECT } from "@/lib/bookings";
-import { formatDate, formatRange, isYmd, parseRange } from "@/lib/format";
+import { formatDate, formatNaira, formatRange, isYmd, parseRange } from "@/lib/format";
 import { bookingHeadline, PAYMENT_LABEL } from "@/lib/status";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Booking } from "@/lib/types";
@@ -91,13 +91,14 @@ export default async function AdminBookings(props: PageProps<"/admin/bookings">)
         <EmptyState art={<ArtSearch className="h-28 w-auto" />} title="No bookings here" body="Nothing matches these filters yet." />
       ) : (
         <div className="overflow-x-auto panel">
-          <table className="data-table min-w-[720px]">
+          <table className="data-table min-w-[820px]">
             <thead className="border-b border-line text-left text-xs text-muted">
               <tr>
                 <th className="px-3 py-2.5 font-medium">When</th>
                 <th className="px-3 py-2.5 font-medium">Facility</th>
                 <th className="px-3 py-2.5 font-medium">Organiser / activity</th>
                 <th className="px-3 py-2.5 font-medium">Status</th>
+                <th className="px-3 py-2.5 font-medium">Amount</th>
                 <th className="px-3 py-2.5 font-medium">Payment</th>
                 <th className="px-3 py-2.5 font-medium">Ref</th>
               </tr>
@@ -118,6 +119,7 @@ export default async function AdminBookings(props: PageProps<"/admin/bookings">)
                       <div className="truncate text-muted">{b.activity_title ?? [b.team_name, b.opponent_name].filter(Boolean).join(" vs ")}</div>
                     </td>
                     <td className="px-3 py-2.5"><Chip tone={h.tone}>{h.label}</Chip></td>
+                    <td className="px-3 py-2.5 font-mono tabular">{b.amount_due_kobo != null ? formatNaira(b.amount_due_kobo) : <span className="text-faint">—</span>}</td>
                     <td className="px-3 py-2.5 text-muted">{PAYMENT_LABEL[b.payment_status]}</td>
                     <td className="px-3 py-2.5 font-mono text-xs">{b.reference}</td>
                   </tr>

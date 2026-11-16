@@ -35,7 +35,7 @@ export const APPROVAL_LABEL: Record<ApprovalStatus, string> = {
 /** Payment wording never implies money was received unless status is `paid`. */
 export const PAYMENT_LABEL: Record<PaymentStatus, string> = {
   not_required: "No payment required",
-  unconfigured: "Payment policy not yet set",
+  unconfigured: "Unpaid · payment method to be confirmed",
   pending: "Payment due",
   paid: "Paid",
   waived: "No charge (waived by staff)",
