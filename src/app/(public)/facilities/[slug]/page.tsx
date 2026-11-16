@@ -116,7 +116,8 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
               <dl>
                 {policyLine("Session length", policy?.slot_minutes ? `${policy.slot_minutes} minutes` : null)}
                 {policyLine("Confirmation", policy ? (policy.approval_mode === "required" ? "Reviewed by staff" : "Instant") : null)}
-                {policyLine("Payment", policy ? (policy.payment_mode === "unconfigured" ? (prices.length ? "Method to be confirmed" : null) : PAYMENT_MODE_LABEL[policy.payment_mode]) : null)}
+                {policyLine("Payment", policy ? (policy.payment_mode === "unconfigured" ? (prices.length ? "Method to be confirmed" : null)
+                  : ["online", "hybrid", "deposit"].includes(policy.payment_mode) && !access.online_payments ? "Online (opens at launch)" : PAYMENT_MODE_LABEL[policy.payment_mode]) : null)}
                 {policyLine("Book up to", policy?.max_advance_days ? `${policy.max_advance_days} days ahead` : null)}
                 {policyLine("Minimum notice", policy?.min_notice_minutes != null ? `${policy.min_notice_minutes} minutes` : null)}
                 {policyLine("Cancelling", policy ? (policy.customer_cancellation === "until_cutoff"
