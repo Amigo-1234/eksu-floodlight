@@ -13,6 +13,8 @@ import { ACTIVITY_TYPE_LABEL, PAYMENT_MODE_LABEL, SLOT_STATE } from "@/lib/statu
 import type { AvailabilitySlot, BookingPolicy } from "@/lib/types";
 
 type Props = {
+  onlinePayments?: boolean;
+  testMode?: boolean;
   facility: { id: string; name: string; timezone: string; rules: string | null };
   policy: BookingPolicy;
   surfaces: { id: string; name: string }[];
@@ -40,7 +42,7 @@ function nextStepsText(policy: BookingPolicy): string[] {
   return out;
 }
 
-export function BookingFlow({ facility, policy, surfaces, price, today, profile }: Props) {
+export function BookingFlow({ facility, policy, surfaces, price, today, profile, onlinePayments = false, testMode = false }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [day, setDay] = useState(today);
@@ -319,7 +321,10 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile 
                 ["Organiser", form.getValues("organizerName")],
                 ["Contact", [form.getValues("organizerPhone"), form.getValues("organizerEmail")].filter(Boolean).join(" · ")],
                 ["Public listing", form.getValues("publicListing") ? "Yes" : "No"],
-                ["Payment", policy.payment_mode === "unconfigured" ? "Method to be confirmed — nothing is charged now" : PAYMENT_MODE_LABEL[policy.payment_mode]],
+                ["Payment", policy.payment_mode === "unconfigured" ? "Method to be confirmed — nothing is charged now"
+                  : ["online", "hybrid", "deposit"].includes(policy.payment_mode) && !onlinePayments ? "Online — not open yet. Nothing is charged now"
+                  : PAYMENT_MODE_LABEL[policy.payment_mode]],
+                ["Booking type", testMode ? "TEST booking — not a real reservation" : ""],
                 ["Duration", policy.slot_minutes ? `${formatDuration(policy.slot_minutes)} session` : ""],
                 ["Price", amount != null ? `${formatNaira(amount)}${policy.payment_mode === "deposit" ? " deposit" : " per session"}` : ""],
               ] as const).filter(([, v]) => v).map(([k, v]) => (

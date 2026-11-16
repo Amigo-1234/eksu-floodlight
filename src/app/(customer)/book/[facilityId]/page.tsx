@@ -6,6 +6,7 @@ import { Card, DevFixtureBadge, Notice } from "@/components/ui";
 import { BookingFlow } from "@/components/booking/BookingFlow";
 import { requireViewer } from "@/lib/auth";
 import { getFacilityById } from "@/lib/data";
+import { getBookingAccess } from "@/lib/access";
 import { todayInTz } from "@/lib/format";
 import { READINESS_LABEL } from "@/lib/status";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -21,6 +22,7 @@ export default async function BookPage(props: PageProps<"/book/[facilityId]">) {
   const d = await getFacilityById(facilityId);
   if (!d || !d.facility.is_active) notFound();
 
+  const access = await getBookingAccess();
   const supabase = await createSupabaseServerClient();
   const { data: profile } = await supabase.from("profiles").select("full_name, phone, email").eq("id", viewer.userId).maybeSingle();
   const today = todayInTz(d.facility.timezone);
@@ -35,7 +37,22 @@ export default async function BookPage(props: PageProps<"/book/[facilityId]">) {
       <h1 className="font-display mt-2 text-5xl">Grab your <span className="text-beam">slot.</span></h1>
       {d.facility.is_dev_fixture && <div className="mt-2"><DevFixtureBadge /></div>}
 
-      {!d.readiness.bookable ? (
+      {d.readiness.bookable && access.can_book && access.test_mode && (
+        <Notice tone="warn" title="Test booking mode" className="mt-6">
+          Public booking isn&apos;t open yet. Anything you book now is a <strong>TEST booking</strong>: it holds the slot so the
+          system can be tested, but it is not a real reservation and no payment is collected.
+        </Notice>
+      )}
+
+      {!access.can_book ? (
+        <Card className="mt-6 p-5">
+          <Notice tone="info" title="Online reservations open soon">
+            You can already browse the facility, its rules and live availability. Booking opens to everyone as soon as the
+            managers launch it — your account is ready.
+          </Notice>
+          <Link href={`/facilities/${d.facility.slug}`} className="mt-4 inline-flex text-sm font-bold text-signal">Back to {d.facility.name}</Link>
+        </Card>
+      ) : !d.readiness.bookable ? (
         <Card className="mt-6 p-5">
           <Notice tone="warn" title="This facility isn't taking online bookings yet">
             <ul className="list-disc pl-5">{d.readiness.missing.map((m) => <li key={m}>{READINESS_LABEL[m] ?? m}</li>)}</ul>
@@ -48,6 +65,8 @@ export default async function BookPage(props: PageProps<"/book/[facilityId]">) {
           surfaces={d.surfaces.filter((s) => s.is_active).map((s) => ({ id: s.id, name: s.name }))}
           price={defaultPrice ? { label: defaultPrice.label, amount_kobo: defaultPrice.amount_kobo, deposit_kobo: defaultPrice.deposit_kobo } : null}
           today={today}
+          onlinePayments={access.online_payments}
+          testMode={access.test_mode}
           profile={{ name: profile?.full_name ?? viewer.fullName, phone: profile?.phone ?? "", email: profile?.email ?? viewer.email ?? "" }}
         />
       )}

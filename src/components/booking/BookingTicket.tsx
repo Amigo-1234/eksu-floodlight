@@ -37,10 +37,15 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
 
       <div className="flex flex-col gap-4 px-5 pb-5 pt-2">
         {b.facilities?.is_dev_fixture && <DevFixtureBadge />}
+        {b.is_test && (
+          <p className="rounded-2xl border border-warn/50 bg-warn/[0.08] px-3 py-2 text-center font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-warn">
+            Test booking · not a real reservation
+          </p>
+        )}
         <div className="flex flex-wrap gap-2">
           <Chip tone={head.tone}>{head.label}</Chip>
           <Chip tone={b.payment_status === "paid" ? "ok" : b.payment_status === "pending" || b.payment_status === "failed" ? "warn" : "muted"}>
-            {PAYMENT_LABEL[b.payment_status]}
+            {b.is_test && b.payment_status === "waived" ? "Test waiver — no payment collected" : PAYMENT_LABEL[b.payment_status]}
           </Chip>
         </div>
 

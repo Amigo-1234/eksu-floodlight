@@ -44,7 +44,7 @@ export default async function AdminBookingDetail(props: PageProps<"/admin/bookin
           <h1 className="font-display text-4xl sm:text-5xl">{formatRange(start, end)} · {formatDate(start, undefined, "short")}</h1>
           <p className="text-muted">{b.facilities?.name} · {b.playing_surfaces?.name}</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Chip tone={h.tone}>{h.label}</Chip><Chip>{PAYMENT_LABEL[b.payment_status]}</Chip></div>
+        <div className="flex flex-wrap gap-2">{b.is_test && <Chip tone="warn">TEST BOOKING</Chip>}<Chip tone={h.tone}>{h.label}</Chip><Chip>{b.is_test && b.payment_status === "waived" ? "Test waiver — no payment collected" : PAYMENT_LABEL[b.payment_status]}</Chip></div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
@@ -110,7 +110,7 @@ export default async function AdminBookingDetail(props: PageProps<"/admin/bookin
           activity={b.activities?.status ?? null} homeScore={b.activities?.home_score ?? null} awayScore={b.activities?.away_score ?? null}
           isAdmin={isAdmin} canCancel={canCancel}
           amountDueNaira={b.amount_due_kobo != null ? b.amount_due_kobo / 100 : null}
-          upcoming={new Date(end).getTime() > nowMs()} />
+          upcoming={new Date(end).getTime() > nowMs()} isTest={!!b.is_test} />
       </div>
     </>
   );

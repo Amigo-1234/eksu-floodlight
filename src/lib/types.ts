@@ -93,6 +93,8 @@ export type Booking = {
   notes: string | null;
   public_listing: boolean;
   amount_due_kobo: number | null;
+  /** Set by the server for bookings made before public launch. */
+  is_test?: boolean;
   decision_reason: string | null;
   cancellation_reason: string | null;
   created_at: string;

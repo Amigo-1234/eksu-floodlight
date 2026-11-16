@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import { Button, Field, Input, Notice } from "@/components/ui";
 import { updateSettings } from "@/app/admin/actions";
 
-type S = { support_email: string | null; support_phone: string | null; require_staff_mfa: boolean; live_gate_admission: boolean; online_payments_enabled: boolean };
+type S = { support_email: string | null; support_phone: string | null; require_staff_mfa: boolean; live_gate_admission: boolean; online_payments_enabled: boolean; public_booking_open: boolean };
 
 export function SettingsForm({ initial }: { initial: S }) {
   const router = useRouter();
   const [v, setV] = useState({ ...initial, support_email: initial.support_email ?? "", support_phone: initial.support_phone ?? "" });
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const toggle = (k: "require_staff_mfa" | "live_gate_admission" | "online_payments_enabled", label: string, warn: string) => (
-    <label className="flex items-start gap-3 rounded-xl border border-line p-3 text-sm">
-      <input type="checkbox" className="mt-0.5 size-4" checked={v[k]} onChange={(e) => setV({ ...v, [k]: e.target.checked })} />
+  const toggle = (k: "require_staff_mfa" | "live_gate_admission" | "online_payments_enabled" | "public_booking_open", label: string, warn: string) => (
+    <label className="panel flex cursor-pointer items-start gap-3 p-4 text-sm transition-colors hover:border-signal/40">
+      <input type="checkbox" className="mt-0.5 size-4 accent-[var(--signal)]" checked={v[k]} onChange={(e) => setV({ ...v, [k]: e.target.checked })} />
       <span><strong>{label}</strong><br /><span className="text-muted">{warn}</span></span>
     </label>
   );
@@ -36,6 +36,7 @@ export function SettingsForm({ initial }: { initial: S }) {
           <Input id="s-phone" type="tel" value={v.support_phone} onChange={(e) => setV({ ...v, support_phone: e.target.value })} />
         </Field>
       </div>
+      {toggle("public_booking_open", "Open booking to the public", "While off, only the owner, staff and listed testers can book, and every booking is a clearly marked TEST booking. Turn on at launch — bookings made after that are real.")}
       {toggle("require_staff_mfa", "Require two-factor authentication for staff", "Turn on before production. Staff without a verified authenticator lose staff access until they enrol.")}
       {toggle("live_gate_admission", "Live gate admission", "Only after the entry policy and gate procedures are approved. While off, gate scans are verification tests and do not admit anyone.")}
       {toggle("online_payments_enabled", "Online payment collection", "Only after the payment policy is approved and the provider keys are configured on the server.")}

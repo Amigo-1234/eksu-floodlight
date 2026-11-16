@@ -118,7 +118,7 @@ export default async function AdminBookings(props: PageProps<"/admin/bookings">)
                       <div className="truncate font-medium">{b.organizer_name}{b.source !== "customer" && <span className="ml-1 text-xs text-muted">({b.source === "walk_in" ? "walk-in" : "staff"})</span>}</div>
                       <div className="truncate text-muted">{b.activity_title ?? [b.team_name, b.opponent_name].filter(Boolean).join(" vs ")}</div>
                     </td>
-                    <td className="px-3 py-2.5"><Chip tone={h.tone}>{h.label}</Chip></td>
+                    <td className="px-3 py-2.5"><div className="flex flex-wrap gap-1"><Chip tone={h.tone}>{h.label}</Chip>{b.is_test && <Chip tone="warn">TEST</Chip>}</div></td>
                     <td className="px-3 py-2.5 font-mono tabular">{b.amount_due_kobo != null ? formatNaira(b.amount_due_kobo) : <span className="text-faint">—</span>}</td>
                     <td className="px-3 py-2.5 text-muted">{PAYMENT_LABEL[b.payment_status]}</td>
                     <td className="px-3 py-2.5 font-mono text-xs">{b.reference}</td>

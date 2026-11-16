@@ -4,6 +4,7 @@ import { CalendarClock, Clock, Info, MapPin, ShieldCheck, Ticket, Wallet } from 
 import { ButtonLink, Card, Chip, DevFixtureBadge, Notice } from "@/components/ui";
 import { PitchArt } from "@/components/site/FacilityCard";
 import { facilityImageUrl, getAvailability, getFacilityBySlug } from "@/lib/data";
+import { getBookingAccess } from "@/lib/access";
 import { formatNaira, todayInTz, WEEKDAYS } from "@/lib/format";
 import { PAYMENT_MODE_LABEL, READINESS_LABEL } from "@/lib/status";
 
@@ -30,7 +31,7 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
   if (!d || !d.facility.is_active) notFound();
   const { facility: f, policy, hours, prices, readiness, surfaces, images } = d;
   const today = todayInTz(f.timezone);
-  const slots = readiness.bookable ? await getAvailability(f.id, today).catch(() => []) : [];
+  const [slots, access] = await Promise.all([readiness.bookable ? getAvailability(f.id, today).catch(() => []) : Promise.resolve([]), getBookingAccess()]);
   const freeToday = slots.filter((s) => s.state === "available").length;
   const cover = facilityImageUrl(images[0]?.storage_path ?? f.cover_image_path);
 
@@ -62,6 +63,12 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
         <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <div className="flex flex-col gap-6">
             {f.description && <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink/90">{f.description}</p>}
+
+            {readiness.bookable && !access.public_open && (
+              <Notice tone="info" title="Online reservations open soon">
+                The schedule below is live, but bookings aren&apos;t open to the public yet. Check back soon — creating an account now means you&apos;re ready on day one.
+              </Notice>
+            )}
 
             {!readiness.bookable && (
               <Notice tone="warn" title="Online booking isn't open for this facility yet">
@@ -145,7 +152,9 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
             <p className="text-sm text-muted"><CalendarClock className="mr-1 inline size-4" aria-hidden="true" />
               {freeToday > 0 ? <><strong className="text-ink">{freeToday}</strong> free slots today</> : "No free slots today — try another date"}
             </p>
-            <ButtonLink href={`/book/${f.id}`} size="lg" className="sm:min-w-48">Pick a slot</ButtonLink>
+            {access.can_book
+              ? <ButtonLink href={`/book/${f.id}`} size="lg" className="sm:min-w-48">{access.test_mode ? "Test booking" : "Pick a slot"}</ButtonLink>
+              : <span className="inline-flex h-14 items-center rounded-[18px] border border-line-strong px-5 text-sm font-bold text-muted">Booking opens soon</span>}
           </div>
         </div>
       )}

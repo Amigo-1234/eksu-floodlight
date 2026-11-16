@@ -20,6 +20,7 @@ type Props = {
   canCancel: boolean;
   amountDueNaira: number | null;
   upcoming: boolean;
+  isTest?: boolean;
 };
 
 export function BookingAdminActions(p: Props) {
@@ -56,9 +57,11 @@ export function BookingAdminActions(p: Props) {
             <p className="mb-3 text-sm text-muted">This facility&apos;s payment policy isn&apos;t set. Approving alone leaves the booking unconfirmed. To confirm it now, you must explicitly mark that no payment is required for this booking (recorded in the audit log).</p>
           )}
           {(p.payment === "unconfigured" || p.payment === "pending") && (
-            <label className="mb-3 flex items-start gap-2 text-sm">
-              <input type="checkbox" checked={waive} onChange={(e) => setWaive(e.target.checked)} className="mt-0.5 size-4" />
-              <span>No payment required for this booking (waive)</span>
+            <label className={`mb-3 flex items-start gap-2 rounded-2xl border p-3 text-sm ${p.isTest ? "border-warn/50 bg-warn/[0.06]" : "border-line"}`}>
+              <input type="checkbox" checked={waive} onChange={(e) => setWaive(e.target.checked)} className="mt-0.5 size-4 accent-[var(--signal)]" />
+              {p.isTest
+                ? <span><strong className="text-warn">TEST-ONLY payment waiver</strong><br /><span className="text-muted">Confirms this test booking without any payment. It is recorded as &ldquo;waived&rdquo;, never as paid.</span></span>
+                : <span>No payment required for this booking (waive)</span>}
             </label>
           )}
           <Field id="decision-reason" label="Note / reason (required to decline)">

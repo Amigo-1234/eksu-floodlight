@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getBookingAccess } from "@/lib/access";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
@@ -39,6 +40,7 @@ export default async function BookingDetailPage(props: PageProps<"/dashboard/boo
     supabase.from("booking_policies").select("*").eq("facility_id", booking.facility_id).maybeSingle(),
   ]);
   const p = policy as BookingPolicy | null;
+  const access = await getBookingAccess();
   const { start } = parseRange(booking.period);
   const beforeStart = new Date(start).getTime() > nowMs();
   const hoursLeft = (new Date(start).getTime() - nowMs()) / 3600_000;
@@ -64,7 +66,9 @@ export default async function BookingDetailPage(props: PageProps<"/dashboard/boo
         <BookingTicket booking={booking} receipt={receipt} pass={pass} />
         {booking.status === "pending" && ["pending", "failed"].includes(booking.payment_status) && booking.approval_status !== "pending"
           && p && ["online", "hybrid", "deposit"].includes(p.payment_mode) && booking.amount_due_kobo != null && (
-          <PayOnlineButton bookingId={booking.id} label={`Pay ${formatNaira(booking.amount_due_kobo)} online`} />
+          access.online_payments
+            ? <PayOnlineButton bookingId={booking.id} label={`Pay ${formatNaira(booking.amount_due_kobo)} online`} />
+            : <p className="no-print rounded-2xl border border-line bg-surface p-4 text-sm text-muted">Online payment isn&apos;t open yet. You won&apos;t be charged — the facility will confirm how to pay before launch.</p>
         )}
         <ReceiptActions
           shareText={`${booking.facilities?.name} · ${formatDateTime(start, booking.facilities?.timezone)} · Ref ${booking.reference}`}

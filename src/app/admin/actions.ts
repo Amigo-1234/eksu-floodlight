@@ -339,18 +339,18 @@ export async function revokeOwner(userId: string): Promise<AdminResult> {
 // ---- Platform settings (owners) ------------------------------------------
 export async function updateSettings(input: {
   support_email: string | null; support_phone: string | null; require_staff_mfa: boolean;
-  live_gate_admission: boolean; online_payments_enabled: boolean;
+  live_gate_admission: boolean; online_payments_enabled: boolean; public_booking_open: boolean;
 }): Promise<AdminResult> {
   const p = z.object({
     support_email: z.string().trim().email("Enter a valid email").nullable().or(z.literal("").transform(() => null)),
     support_phone: phoneSchema.nullable().or(z.literal("").transform(() => null)),
-    require_staff_mfa: z.boolean(), live_gate_admission: z.boolean(), online_payments_enabled: z.boolean(),
+    require_staff_mfa: z.boolean(), live_gate_admission: z.boolean(), online_payments_enabled: z.boolean(), public_booking_open: z.boolean(),
   }).safeParse(input);
   if (!p.success) return invalid(p.error);
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.from("platform_settings").update(p.data).eq("id", 1).select("id");
   if (error) return fail(error);
   if (!data?.length) return { ok: false, error: "Only platform owners can change these settings." };
-  done(["/admin/settings", "/"]);
+  done(["/admin/settings", "/", "/facilities"]);
   return { ok: true, data: undefined };
 }

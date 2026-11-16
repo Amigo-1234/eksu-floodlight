@@ -3,6 +3,8 @@ import { ButtonLink, EmptyState, PillLink, stagger } from "@/components/ui";
 import { FacilityCard } from "@/components/site/FacilityCard";
 import { ArtEmpty, ArtSearch } from "@/components/brand/Illustrations";
 import { listPublicFacilities, listSportCategories } from "@/lib/data";
+import { getBookingAccess } from "@/lib/access";
+import { Notice } from "@/components/ui";
 import { todayInTz } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Facilities" };
@@ -19,6 +21,7 @@ export default async function FacilitiesPage(props: PageProps<"/facilities">) {
   } catch {
     failed = true;
   }
+  const access = await getBookingAccess();
   const present = new Set(facilities.map((f) => f.sport_categories?.slug).filter(Boolean));
   const shown = sportFilter ? facilities.filter((f) => f.sport_categories?.slug === sportFilter) : facilities;
 
@@ -42,6 +45,11 @@ export default async function FacilitiesPage(props: PageProps<"/facilities">) {
       </section>
 
       <div className="mx-auto max-w-6xl px-4 py-10">
+        {!failed && shown.length > 0 && !access.public_open && (
+          <Notice tone="info" title="Online reservations open soon" className="mb-6">
+            Facilities and live availability are visible now; booking opens to everyone at launch.
+          </Notice>
+        )}
         {failed ? (
           <EmptyState title="Couldn't load facilities" body="Please refresh the page in a moment." />
         ) : shown.length === 0 ? (

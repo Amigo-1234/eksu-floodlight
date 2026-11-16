@@ -46,6 +46,8 @@ export async function createTestDatabase() {
     }
     // Floodlight is installed exactly as it would be remotely: the generated bundle.
     await c.query(readFileSync(join(root, "db/dist/floodlight_bundle.sql"), "utf8"));
+    // Most suites model a launched platform; prelaunch.test.mjs closes booking itself.
+    await c.query("update floodlight.platform_settings set public_booking_open = true where id = 1");
   } finally {
     c.release();
   }
