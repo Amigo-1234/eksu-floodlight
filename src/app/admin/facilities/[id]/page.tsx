@@ -32,7 +32,7 @@ export default async function FacilityAdminPage(props: PageProps<"/admin/facilit
       <Link href="/admin/facilities" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ChevronLeft className="size-4" aria-hidden="true" />Facilities</Link>
       <div className="mb-6 mt-2 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-4xl sm:text-5xl">{d.facility.name}</h1>
+          <h1 className="font-display t-page">{d.facility.name}</h1>
           <div className="mt-2 flex flex-wrap gap-2">
             <Chip tone={d.facility.is_active ? "ok" : "muted"}>{d.facility.is_active ? "Active" : "Inactive"}</Chip>
             {d.facility.is_dev_fixture && <DevFixtureBadge />}

@@ -15,9 +15,9 @@ export default async function ProfilePage() {
   const { data } = await supabase.from("profiles").select("full_name, phone, email").eq("id", viewer.userId).maybeSingle();
   const initial = (data?.full_name || viewer.fullName || viewer.email || "?").charAt(0).toUpperCase();
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-8">
+    <div className="mx-auto w-full max-w-md page-pad">
       <p className="eyebrow">Account</p>
-      <h1 className="font-display mt-2 text-5xl">Profile</h1>
+      <h1 className="font-display t-page mt-1.5">Profile</h1>
       <Card className="mt-6 p-5">
         <div className="flex items-center gap-4">
           <span className="flex size-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#ffd166,#ff9f1c)] font-display text-2xl text-signal-ink shadow-[0_10px_30px_-10px_rgb(255_197_61/0.8)]">{initial}</span>

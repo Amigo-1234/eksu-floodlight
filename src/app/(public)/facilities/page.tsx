@@ -31,7 +31,7 @@ export default async function FacilitiesPage(props: PageProps<"/facilities">) {
         <div className="pitch-lines pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-12">
           <p className="eyebrow flex items-center gap-2"><span className="h-px w-6 bg-signal/70" aria-hidden="true" />EKSU sports facilities</p>
-          <h1 className="font-display mt-3 text-5xl sm:text-6xl">Find your field</h1>
+          <h1 className="font-display t-display mt-2">Find your field</h1>
           <p className="mt-3 max-w-xl text-muted">Pick a facility to see its rules, opening hours and live availability.</p>
           {present.size > 1 && (
             <nav aria-label="Filter by sport" className="-mx-4 mt-7 flex gap-2 overflow-x-auto px-4 pb-1">
@@ -44,7 +44,7 @@ export default async function FacilitiesPage(props: PageProps<"/facilities">) {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
         {!failed && shown.length > 0 && !access.public_open && (
           <Notice tone="info" title="Online reservations open soon" className="mb-6">
             Facilities and live availability are visible now; booking opens to everyone at launch.

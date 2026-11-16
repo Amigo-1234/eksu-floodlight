@@ -9,8 +9,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function SiteHeader() {
   const viewer = await getViewer();
   return (
-    <header className="glass sticky top-0 z-30 border-b border-line/80">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
+    <header className="glass no-print sticky top-0 z-30 border-b border-line/80">
+      <div className="mx-auto flex h-[var(--header-h)] max-w-6xl items-center justify-between gap-3 px-4">
         <Logo />
         <HeaderNav signedIn={!!viewer} firstName={viewer?.fullName ? viewer.fullName.split(" ")[0] : null}
           admin={canUseAdmin(viewer)} gate={canUseGate(viewer)} />

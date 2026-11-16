@@ -6,7 +6,7 @@ export function FacilityPicker({ facilities, base }: { facilities: { id: string;
   }
   return (
     <div>
-      <h1 className="font-display mb-4 text-4xl">Choose your gate</h1>
+      <h1 className="font-display t-page mb-4">Choose your gate</h1>
       <ul className="flex flex-col gap-2">
         {facilities.map((f) => (
           <li key={f.id}>

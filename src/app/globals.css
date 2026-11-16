@@ -39,7 +39,24 @@
   --info: #6ae4ff;
   --ring: #ffc53d;
   --radius-card: 22px;
+
+  /* Layout tokens. --nav-h is the tab bar's row height; the bar adds the
+     device's bottom safe area (home indicator) on top of it. */
+  --nav-h: 3.5rem;
+  --nav-total: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+  --header-h: 3.5rem;
+  --gutter: 1rem;
+  --space-page-y: clamp(1rem, 0.6rem + 2vw, 2rem);
+  --space-section: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem);
+
+  /* Fluid type scale (min at 320px → max at ~1280px). */
+  --fs-hero: clamp(2.5rem, 1.6rem + 4.2vw, 4.875rem);
+  --fs-display: clamp(2rem, 1.55rem + 2.2vw, 3.25rem);
+  --fs-page: clamp(1.75rem, 1.45rem + 1.5vw, 2.75rem);
+  --fs-section: clamp(1.25rem, 1.1rem + 0.7vw, 1.75rem);
+  --fs-stat: clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem);
 }
+@media (min-width: 640px) { :root { --header-h: 4rem; --gutter: 1.5rem; } }
 
 /* Staff consoles share the night system (no light theme). Kept as a hook. */
 .theme-day { }
@@ -69,20 +86,81 @@
   --radius-card: 22px;
 }
 
-html { color-scheme: dark; background: var(--bg); min-height: 100%; }
+html {
+  color-scheme: dark;
+  background: var(--bg);
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Keeps the page width identical whether or not a page scrolls (desktop). */
+  scrollbar-gutter: stable;
+  /* Anchor-jumps and focus() never land under the sticky header. */
+  scroll-padding-top: calc(var(--header-h) + 0.75rem);
+  scroll-padding-bottom: calc(var(--nav-total) + 0.75rem);
+}
+/* `clip` (not `hidden`) stops sideways panning without creating a scroll
+   container, so sticky headers keep working in iOS Safari. */
+html, body { overflow-x: clip; }
 body { min-height: 100dvh; }
 
 body {
+  /* No background-attachment: fixed — iOS ignores it and repaints on scroll. */
   background:
-    radial-gradient(1200px 520px at 50% -260px, rgb(255 197 61 / 0.07), transparent 70%),
+    radial-gradient(1200px 520px at 50% -260px, rgb(255 197 61 / 0.07), transparent 70%) no-repeat,
     var(--bg);
-  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
   font-feature-settings: "ss01", "cv11";
   -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
 }
+
+/* Long words, emails and references wrap instead of widening the page. */
+p, dd, h1, h2, h3 { overflow-wrap: anywhere; }
+
+/* Fluid headings — impact without eating the screen. */
+@utility t-hero { font-size: var(--fs-hero); line-height: 0.92; }
+@utility t-display { font-size: var(--fs-display); line-height: 0.95; }
+@utility t-page { font-size: var(--fs-page); line-height: 1; }
+@utility t-section { font-size: var(--fs-section); line-height: 1.1; }
+@utility t-stat { font-size: var(--fs-stat); line-height: 1; }
+
+/* Page wrapper rhythm. */
+@utility page-pad { padding: var(--space-page-y) var(--gutter); }
+
+/* ------------------------------------------------------------- bottom nav */
+
+/*
+ * Docked tab bar. It sits flush with the bottom edge (so it reads as part of
+ * the app, not a second toolbar floating over Safari's), pads itself by the
+ * home-indicator safe area, and slides away with a GPU transform only.
+ */
+.bottom-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 30;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: linear-gradient(180deg, rgb(13 15 20 / 0.86), rgb(5 6 8 / 0.94));
+  backdrop-filter: saturate(140%) blur(16px);
+  -webkit-backdrop-filter: saturate(140%) blur(16px);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -18px 40px -24px rgb(0 0 0 / 0.9);
+  transform: translate3d(0, 0, 0);
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 200ms ease;
+  will-change: transform;
+}
+.bottom-nav[data-visible="false"],
+/* Any full-screen overlay (mobile menu, dialogs) or the gate camera hides it. */
+html[data-overlay] .bottom-nav,
+html[data-gate-focus] .gate-nav {
+  transform: translate3d(0, calc(100% + 2px), 0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Space reserved under page content wherever a bottom bar exists, so the bar
+   can never cover the last card, button or QR code. */
+@utility pb-nav { padding-bottom: calc(var(--nav-total) + 1.5rem); }
 
 ::selection { background: rgb(255 197 61 / 0.35); color: var(--ink); }
 
@@ -284,7 +362,20 @@ details[open] > .details-body { animation: rise 260ms cubic-bezier(0.2, 0.8, 0.2
 }
 
 @media print {
+  @page { margin: 12mm; }
   html, body { background: #fff !important; color: #000 !important; }
-  .no-print { display: none !important; }
+  .no-print, header, footer, nav { display: none !important; }
+  main { padding: 0 !important; }
   .print-plain { box-shadow: none !important; border: 1px solid #000 !important; }
+  /* The ticket prints as a clean black-on-white document. */
+  .ticket, .ticket * {
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: #000 !important;
+  }
+  .ticket { border: 1px solid #000 !important; max-width: 120mm !important; margin: 0 auto !important; break-inside: avoid; }
+  .ticket .ticket-qr { print-color-adjust: exact; -webkit-print-color-adjust: exact; background: #fff !important; }
+  .ticket-notch::before, .ticket-notch::after { display: none; }
 }

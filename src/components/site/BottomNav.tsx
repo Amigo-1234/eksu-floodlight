@@ -3,28 +3,45 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarCheck2, Home, LayoutGrid, UserRound } from "lucide-react";
+import { useHideOnScroll } from "@/lib/use-hide-on-scroll";
+import { activeTab } from "@/lib/nav-scroll";
 
-const ITEMS = [
-  { href: "/dashboard", label: "Home", icon: Home, match: (p: string) => p === "/dashboard" },
-  { href: "/facilities", label: "Book", icon: LayoutGrid, match: (p: string) => p.startsWith("/book") || p.startsWith("/facilities") },
-  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck2, match: (p: string) => p.startsWith("/dashboard/bookings") || p.startsWith("/booking/") },
-  { href: "/dashboard/profile", label: "Profile", icon: UserRound, match: (p: string) => p.startsWith("/dashboard/profile") },
+type Item = { href: string; label: string; icon: typeof Home };
+
+const ITEMS: Item[] = [
+  { href: "/dashboard", label: "Home", icon: Home },
+  { href: "/facilities", label: "Book", icon: LayoutGrid },
+  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck2 },
+  { href: "/dashboard/profile", label: "Profile", icon: UserRound },
 ];
 
-/** Floating tab bar for the signed-in customer area on phones. */
+/**
+ * Docked tab bar for the signed-in customer area on phones. It slides away
+ * while scrolling down or typing and returns on scroll up; pages reserve its
+ * height (`.pb-nav`) so nothing is ever underneath it at the end of a page.
+ */
 export function BottomNav() {
   const path = usePathname();
+  const current = activeTab(path);
+  const { visible } = useHideOnScroll();
+  return <TabBar label="Account" items={ITEMS} current={current} visible={visible} className="sm:hidden" />;
+}
+
+export function TabBar({ label, items, current, visible, className = "" }:
+  { label: string; items: Item[]; current: string | null; visible: boolean; className?: string }) {
   return (
-    <nav aria-label="Account" className="no-print fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-30 sm:hidden">
-      <ul className="glass grid grid-cols-4 rounded-[26px] border border-line-strong p-1.5 shadow-[0_20px_50px_-15px_rgb(0_0_0/0.95)]">
-        {ITEMS.map(({ href, label, icon: Icon, match }) => {
-          const active = match(path);
+    <nav aria-label={label} data-visible={visible} className={`bottom-nav no-print ${className}`}>
+      <ul className="mx-auto grid max-w-xl" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+        {items.map(({ href, label: text, icon: Icon }) => {
+          const active = current === href.split("?")[0];
           return (
             <li key={href}>
               <Link href={href} aria-current={active ? "page" : undefined}
-                className={`relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-[20px] text-[11px] font-bold transition-colors duration-200 ${active ? "bg-signal/[0.13] text-signal" : "text-muted"}`}>
-                <Icon className={`size-[21px] transition-transform duration-200 ${active ? "-translate-y-0.5" : ""}`} aria-hidden="true" />{label}
-                {active && <span className="absolute bottom-1 h-1 w-1 rounded-full bg-signal shadow-[0_0_8px_var(--signal)]" aria-hidden="true" />}
+                // Hidden bar must not stay in the tab order.
+                tabIndex={visible ? undefined : -1}
+                className={`relative flex h-[var(--nav-h)] flex-col items-center justify-center gap-0.5 text-[11px] font-bold transition-colors duration-200 ${active ? "text-signal" : "text-muted hover:text-ink"}`}>
+                {active && <span className="absolute top-0 h-0.5 w-8 rounded-full bg-signal shadow-[0_0_10px_var(--signal)]" aria-hidden="true" />}
+                <Icon className="size-[22px]" aria-hidden="true" />{text}
               </Link>
             </li>
           );

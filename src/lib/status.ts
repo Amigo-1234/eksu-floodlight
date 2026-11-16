@@ -86,3 +86,20 @@ export const READINESS_LABEL: Record<string, string> = {
   no_active_surface: "No active playing surface",
   price_not_set: "Price not set (a paid payment mode is selected)",
 };
+
+export type TicketKind = "request" | "receipt" | "pass";
+
+/** Which of the three ticket variants a booking shows. Exported for tests. */
+export function ticketKind(status: Booking["status"], passAvailable: boolean): TicketKind {
+  const confirmed = status === "confirmed" || status === "checked_in" || status === "completed";
+  if (!confirmed) return "request";
+  return passAvailable ? "pass" : "receipt";
+}
+
+/** Payment chip — "Paid" (green) only when the database says paid. Exported for tests. */
+export function paymentChip(status: PaymentStatus, isTest: boolean | undefined): { label: string; tone: Tone } {
+  if (isTest && status === "waived") return { label: "Test · no payment collected", tone: "warn" };
+  if (status === "paid") return { label: PAYMENT_LABEL.paid, tone: "ok" };
+  if (status === "pending" || status === "failed" || status === "unconfigured") return { label: PAYMENT_LABEL[status], tone: "warn" };
+  return { label: PAYMENT_LABEL[status], tone: "muted" };
+}

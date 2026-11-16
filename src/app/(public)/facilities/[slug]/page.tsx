@@ -1,3 +1,4 @@
+import { SmartDock } from "@/components/site/SmartDock";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CalendarClock, Clock, Info, MapPin, ShieldCheck, Ticket, Wallet } from "lucide-react";
@@ -40,8 +41,8 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
   }));
 
   return (
-    <div className="pb-28 sm:pb-10">
-      <div className="relative h-60 overflow-hidden border-b border-line bg-raised sm:h-80">
+    <div className="pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-10">
+      <div className="relative h-44 overflow-hidden border-b border-line bg-raised sm:h-80">
         {cover
           // eslint-disable-next-line @next/next/no-img-element -- public storage image
           ? <img src={cover} alt={images[0]?.alt_text || ""} className="h-full w-full object-cover" />
@@ -50,17 +51,17 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
         <div className="pointer-events-none absolute -left-24 -top-24 size-80 rounded-full bg-signal/20 blur-3xl" aria-hidden="true" />
       </div>
 
-      <div className="mx-auto -mt-16 max-w-6xl px-4">
+      <div className="mx-auto -mt-12 max-w-6xl px-4 sm:-mt-16">
         <div className="relative flex flex-col gap-3">
           <div className="flex flex-wrap gap-2">
             <Chip tone="muted">{f.sport_categories?.name}</Chip>
             {f.is_dev_fixture && <DevFixtureBadge />}
           </div>
-          <h1 className="font-display text-[44px] leading-[0.95] sm:text-6xl">{f.name}</h1>
+          <h1 className="font-display t-display">{f.name}</h1>
           {f.location_label && <p className="flex items-center gap-1.5 text-muted"><MapPin className="size-4" aria-hidden="true" />{f.location_label}</p>}
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="mt-6 grid gap-6 sm:mt-8 lg:grid-cols-[minmax(0,1fr)_340px]">
           <div className="flex flex-col gap-6">
             {f.description && <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink/90">{f.description}</p>}
 
@@ -148,16 +149,16 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
       </div>
 
       {readiness.bookable && (
-        <div className="no-print fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-20 sm:static sm:mx-auto sm:mt-10 sm:max-w-6xl sm:px-4">
-          <div className="glass glow-ring mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-[24px] px-4 py-3 sm:px-6 sm:py-4">
-            <p className="text-sm text-muted"><CalendarClock className="mr-1 inline size-4" aria-hidden="true" />
+        <SmartDock>
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+            <p className="min-w-0 text-sm text-muted"><CalendarClock className="mr-1 inline size-4" aria-hidden="true" />
               {freeToday > 0 ? <><strong className="text-ink">{freeToday}</strong> free slots today</> : "No free slots today — try another date"}
             </p>
             {access.can_book
-              ? <ButtonLink href={`/book/${f.id}`} size="lg" className="sm:min-w-48">{access.test_mode ? "Test booking" : "Pick a slot"}</ButtonLink>
-              : <span className="inline-flex h-14 items-center rounded-[18px] border border-line-strong px-5 text-sm font-bold text-muted">Booking opens soon</span>}
+              ? <ButtonLink href={`/book/${f.id}`} size="lg" className="h-12 shrink-0 sm:h-14 sm:min-w-48">{access.test_mode ? "Test booking" : "Pick a slot"}</ButtonLink>
+              : <span className="inline-flex h-12 shrink-0 items-center rounded-2xl border border-line-strong px-4 text-sm font-bold text-muted">Booking opens soon</span>}
           </div>
-        </div>
+        </SmartDock>
       )}
     </div>
   );

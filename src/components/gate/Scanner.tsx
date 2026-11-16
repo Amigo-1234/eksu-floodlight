@@ -50,6 +50,16 @@ export function Scanner({ facilityId, facilityName, timezone, live }: { facility
 
   useEffect(() => () => stopCamera(), [stopCamera]);
 
+  // While the camera or a verdict fills the screen, the gate tab bar steps aside
+  // so it can never cover the viewfinder or the "Check in" / "Scan next" buttons.
+  const focusMode = camera === "on" || camera === "starting" || verdict?.kind === "result";
+  useEffect(() => {
+    const root = document.documentElement;
+    if (focusMode) root.setAttribute("data-gate-focus", "");
+    else root.removeAttribute("data-gate-focus");
+    return () => root.removeAttribute("data-gate-focus");
+  }, [focusMode]);
+
   const verify = (token: string, commit: boolean, key: string) => {
     start(async () => {
       try {
@@ -115,7 +125,7 @@ export function Scanner({ facilityId, facilityName, timezone, live }: { facility
     <div className="flex flex-col gap-4">
       <div>
         <p className="eyebrow">Scanning at</p>
-        <h1 className="font-display text-4xl">{facilityName}</h1>
+        <h1 className="font-display t-page">{facilityName}</h1>
       </div>
 
       {verdict?.kind === "offline" && (
@@ -127,7 +137,7 @@ export function Scanner({ facilityId, facilityName, timezone, live }: { facility
       )}
       {verdict?.kind === "error" && <Notice tone="danger">{verdict.message}</Notice>}
 
-      <div className="glow-ring relative aspect-square w-full overflow-hidden rounded-[30px] bg-black">
+      <div className="glow-ring relative mx-auto aspect-square w-full max-w-[min(100%,calc(100svh-17rem))] overflow-hidden rounded-[30px] bg-black">
         <video ref={videoRef} playsInline muted className={`h-full w-full object-cover ${camera === "on" ? "" : "hidden"}`} />
         <canvas ref={canvasRef} className="hidden" />
         {camera === "on" && (
@@ -155,6 +165,9 @@ export function Scanner({ facilityId, facilityName, timezone, live }: { facility
         )}
       </div>
       {pending && <p className="text-center text-sm text-muted" aria-live="polite">Checking with the server…</p>}
+      {camera === "on" && (
+        <Button variant="outline" size="lg" onClick={stopCamera}><CameraOff className="size-5" aria-hidden="true" />Stop camera</Button>
+      )}
 
       <Button variant="outline" size="lg" onClick={() => { stopCamera(); setManual((m) => !m); }}>
         <Keyboard className="size-5" aria-hidden="true" />{manual ? "Hide manual lookup" : "Look up by reference"}
@@ -172,10 +185,10 @@ function VerdictScreen({ verdict, live, timezone, pending, onCommit, onNext }: {
   const bg = res.checked_in || meta.tone === "ok" ? "bg-[radial-gradient(120%_70%_at_50%_0%,#0f5a33,#04140b)]" : meta.tone === "warn" ? "bg-[radial-gradient(120%_70%_at_50%_0%,#5c3a00,#140c00)]" : "bg-[radial-gradient(120%_70%_at_50%_0%,#6b1020,#14030a)]";
   const b = res.booking;
   return (
-    <div role="status" aria-live="assertive" className={`animate-rise -mx-4 -mt-4 flex min-h-[calc(100dvh-8rem)] flex-col gap-4 px-5 py-6 text-white ${bg}`}>
+    <div role="status" aria-live="assertive" className={`animate-rise -mx-4 -mt-4 flex min-h-[calc(100svh-var(--header-h)-2rem)] flex-col gap-4 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-6 text-white ${bg}`}>
       <div className="flex items-center gap-3">
         <ArtVerdict ok={res.checked_in || meta.tone === "ok"} className="size-20 shrink-0" />
-        <p className="font-display text-5xl leading-none">{res.checked_in ? "CHECKED IN" : meta.title}</p>
+        <p className="font-display t-display leading-none">{res.checked_in ? "CHECKED IN" : meta.title}</p>
       </div>
       <p className="text-lg">{res.checked_in ? (res.mode === "test" ? "Recorded as a TEST check-in. Not an entry authorization." : "Entry recorded.") : meta.body}</p>
       {res.result === "ALREADY_USED" && res.checked_in_at && <p className="text-base">First checked in at {formatTime(res.checked_in_at, timezone)}.</p>}

@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, MailCheck } from "lucide-react";
+import { Check, Circle, Loader2, MailCheck } from "lucide-react";
 import { Button, Field, Input, Notice } from "@/components/ui";
 import { supabaseBrowser } from "@/lib/supabase/browser";
+import { isExistingAccountResponse, PASSWORD_RULES } from "@/lib/auth-rules";
 
 const email = z.string().trim().toLowerCase().email("Enter a valid email address").max(254, "Email is too long");
 const newPassword = z.string()
@@ -36,8 +37,28 @@ function authMessage(msg: string): string {
   if (/signups? not allowed|signup.*disabled/i.test(msg)) return "New accounts aren't open yet. Please sign in with the account you were given.";
   if (/same.*password|different from the old/i.test(msg)) return "Choose a password you haven't used for this account before.";
   if (/weak|pwned|leaked|compromised/i.test(msg)) return "That password is too easy to guess or has appeared in a data breach. Choose another.";
-  if (/sending.*email|smtp/i.test(msg)) return "We couldn't send the email right now. Please try again later.";
+  if (/sending.*email|smtp|error sending/i.test(msg)) return "We couldn't send the email right now. Please try again later.";
+  if (/email address .* is invalid|invalid email|email.*not authorized/i.test(msg)) return "That email address can't be used. Check it for typos or try another address.";
+  if (/password should be|password.*(short|length|characters)/i.test(msg)) return "That password doesn't meet the requirements below.";
+  if (/expired|invalid.*(token|otp|link)/i.test(msg)) return "That link has expired or was already used. Request a new one.";
+  if (/fetch|network/i.test(msg)) return "Can't reach the server. Check your connection and try again.";
   return "We couldn't complete that. Please try again.";
+}
+
+function PasswordChecklist({ value }: { value: string }) {
+  return (
+    <ul id="password-rules" className="-mt-1 grid gap-1 text-xs sm:grid-cols-3" aria-label="Password requirements">
+      {PASSWORD_RULES.map((r) => {
+        const ok = r.test(value);
+        return (
+          <li key={r.id} className={`flex items-center gap-1.5 transition-colors ${ok ? "text-ok" : "text-muted"}`}>
+            {ok ? <Check className="size-3.5" aria-hidden="true" /> : <Circle className="size-3" aria-hidden="true" />}
+            {r.label}<span className="sr-only">{ok ? " — done" : " — not yet"}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 const callbackUrl = (next: string) => `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
@@ -113,7 +134,8 @@ export function SignUpForm({ next, disabled }: { next: string; disabled?: boolea
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
-  const { register, handleSubmit, formState } = useForm<z.infer<typeof signUpSchema>>({ resolver: zodResolver(signUpSchema) });
+  const { register, handleSubmit, formState, control } = useForm<z.infer<typeof signUpSchema>>({ resolver: zodResolver(signUpSchema) });
+  const pw = useWatch({ control, name: "password" }) ?? "";
 
   const onSubmit = handleSubmit(async (v) => {
     setError(null);
@@ -126,6 +148,9 @@ export function SignUpForm({ next, disabled }: { next: string; disabled?: boolea
       options: { data: { full_name: v.fullName, display_name: v.fullName, app: "floodlight" }, emailRedirectTo: callbackUrl(next) },
     });
     if (error) return setError(authMessage(error.message));
+    if (isExistingAccountResponse(data.user)) {
+      return setError("An account already exists for that email. Sign in, or use “Forgot password?” if you can't remember it.");
+    }
     if (data.session) {
       router.replace(next);
       router.refresh();
@@ -159,9 +184,10 @@ export function SignUpForm({ next, disabled }: { next: string; disabled?: boolea
       <Field id="email" label="Email" hint="We'll send a link to confirm it." error={formState.errors.email?.message}>
         <Input id="email" type="email" autoComplete="email" inputMode="email" aria-invalid={!!formState.errors.email} {...register("email")} />
       </Field>
-      <Field id="password" label="Password" hint="At least 8 characters, with letters and a number." error={formState.errors.password?.message}>
-        <Input id="password" type="password" autoComplete="new-password" aria-invalid={!!formState.errors.password} {...register("password")} />
+      <Field id="password" label="Password" error={formState.errors.password?.message}>
+        <Input id="password" type="password" autoComplete="new-password" aria-describedby="password-rules" aria-invalid={!!formState.errors.password} {...register("password")} />
       </Field>
+      <PasswordChecklist value={pw} />
       <Field id="confirm" label="Confirm password" error={formState.errors.confirm?.message}>
         <Input id="confirm" type="password" autoComplete="new-password" aria-invalid={!!formState.errors.confirm} {...register("confirm")} />
       </Field>

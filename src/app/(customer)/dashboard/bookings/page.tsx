@@ -41,27 +41,27 @@ export default async function MyBookingsPage(props: PageProps<"/dashboard/bookin
   const outstanding = unpaid.reduce((n, b) => n + (b.amount_due_kobo ?? 0), 0);
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-8">
+    <div className="mx-auto w-full max-w-3xl page-pad">
       <p className="eyebrow">Your passes &amp; receipts</p>
-      <h1 className="font-display mt-2 text-5xl">My bookings</h1>
+      <h1 className="font-display t-page mt-1.5">My bookings</h1>
       {unpaid.length > 0 && (
-        <div className="panel mt-5 flex items-center justify-between gap-3 p-4">
-          <div>
+        <div className="panel mt-4 flex items-center justify-between gap-3 p-4">
+          <div className="min-w-0">
             <p className="text-xs font-semibold text-muted">Outstanding for {unpaid.length} booking{unpaid.length === 1 ? "" : "s"}</p>
             <p className="text-[11px] text-faint">Payment method will be confirmed by the facility. Nothing has been charged.</p>
           </div>
-          <p className="font-display text-3xl tabular text-signal">{formatNaira(outstanding)}</p>
+          <p className="font-display t-stat shrink-0 tabular text-signal">{formatNaira(outstanding)}</p>
         </div>
       )}
-      <nav aria-label="Booking lists" className="mt-6 grid grid-cols-3 gap-1 rounded-2xl border border-line bg-surface p-1">
+      <nav aria-label="Booking lists" className="mt-4 grid grid-cols-3 gap-1 rounded-2xl border border-line bg-surface p-1">
         {TABS.map((t) => (
           <Link key={t.key} href={`/dashboard/bookings?tab=${t.key}`} aria-current={t.key === active ? "page" : undefined}
             className="rounded-xl px-2 py-2.5 text-center text-[13px] font-bold text-muted transition-colors aria-[current=page]:bg-signal aria-[current=page]:text-signal-ink">
-            {t.label} <span className="opacity-60">({all.filter((b) => bucket(b, now) === t.key).length})</span>
+            {t.key === "cancelled" ? <><span className="sm:hidden">Cancelled</span><span className="hidden sm:inline">{t.label}</span></> : t.label} <span className="opacity-60">({all.filter((b) => bucket(b, now) === t.key).length})</span>
           </Link>
         ))}
       </nav>
-      <div className="mt-5">
+      <div className="mt-4">
         {shown.length === 0 ? (
           <EmptyState art={<ArtTicket className="h-28 w-auto" />} title={active === "upcoming" ? "No games lined up" : "Nothing here yet"} body={active === "upcoming" ? "Your next booking will show up here with its pass." : "Bookings you make will be kept here."}
             action={active === "upcoming" ? <ButtonLink href="/facilities">Book a slot</ButtonLink> : undefined} />

@@ -36,9 +36,9 @@ export default async function SchedulePage(props: PageProps<"/schedule">) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-12">
+    <div className="mx-auto w-full max-w-4xl page-pad">
       <p className="eyebrow flex items-center gap-2"><span className="live-dot size-1.5 rounded-full bg-signal" aria-hidden="true" />On the fields</p>
-      <h1 className="font-display mt-3 text-5xl sm:text-6xl">What&apos;s <span className="text-beam">on.</span></h1>
+      <h1 className="font-display t-display mt-2">What&apos;s <span className="text-beam">on.</span></h1>
       <p className="mt-2 max-w-xl text-muted">
         Confirmed bookings whose organisers chose to list them publicly. Live and full-time status appear only when facility staff record them.
       </p>

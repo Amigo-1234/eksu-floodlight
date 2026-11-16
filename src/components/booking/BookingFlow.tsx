@@ -77,7 +77,16 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
     });
   }, [facility.id]);
 
-  useEffect(() => { headingRef.current?.focus(); }, [step]);
+  // Move focus to the new step's heading (screen readers announce it) — but not
+  // on first load, where it would make the page jump.
+  const firstStep = useRef(true);
+  useEffect(() => {
+    if (firstStep.current) { firstStep.current = false; return; }
+    const h = headingRef.current;
+    if (!h) return;
+    h.focus({ preventScroll: true });
+    h.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, [step]);
 
   const surfaceSlots = (slots ?? []).filter((s) => s.surface_id === surfaceId);
   const freeCount = surfaceSlots.filter((s) => s.state === "available").length;
@@ -110,9 +119,9 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
   const amount = price && policy.payment_mode !== "free" ? (policy.payment_mode === "deposit" ? price.deposit_kobo ?? price.amount_kobo : price.amount_kobo) : null;
 
   return (
-    <div className="mt-6">
+    <div className="mt-5">
       {/* Stepper */}
-      <ol className="mb-6 grid grid-cols-4 gap-2" aria-label="Booking steps">
+      <ol className="mb-5 grid grid-cols-4 gap-2" aria-label="Booking steps">
         {STEPS.map((label, i) => (
           <li key={label}>
             <button type="button" disabled={i > step || submitting} onClick={() => setStep(i)}
@@ -131,19 +140,19 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
       {/* Step 1 — Date */}
       {step === 0 && (
         <section aria-labelledby="step-h" className="animate-rise">
-          <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display mb-4 text-3xl">Pick a date</h2>
-          <div className="-mx-4 overflow-x-auto px-4 pb-2">
+          <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display t-section mb-3 scroll-mt-[calc(var(--header-h)+1rem)]">Pick a date</h2>
+          <div className="-mx-4 snap-x scroll-px-4 overflow-x-auto overscroll-x-contain px-4 pb-2 [scrollbar-width:none]">
             <ul className="flex gap-2">
               {days.map((d) => {
                 const l = dayLabel(d);
                 const on = d === day;
                 return (
-                  <li key={d}>
+                  <li key={d} className="snap-start">
                     <button type="button" onClick={() => setDay(d)} aria-pressed={on}
-                      className={cx("flex h-[84px] w-[66px] flex-col items-center justify-center gap-1 rounded-[20px] border transition-all duration-200 active:scale-95",
+                      className={cx("flex h-[72px] w-[58px] flex-col items-center justify-center gap-0.5 rounded-[18px] border transition-[transform,background-color,border-color] duration-200 active:scale-95",
                         on ? "border-transparent bg-[linear-gradient(180deg,#ffd166,#ffc53d_50%,#ff9f1c)] text-signal-ink shadow-[0_12px_30px_-10px_rgb(255_197_61/0.8)]" : "border-line bg-surface hover:-translate-y-0.5 hover:border-signal/40")}>
                       <span className="font-mono text-[10px] font-medium uppercase tracking-[0.12em]">{d === today ? "Today" : l.weekday}</span>
-                      <span className="font-display text-[28px] leading-none tabular">{l.day}</span>
+                      <span className="font-display text-[22px] leading-none tabular">{l.day}</span>
                       <span className="text-[11px]">{l.month}</span>
                     </button>
                   </li>
@@ -151,15 +160,15 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
               })}
             </ul>
           </div>
-          <div className="mt-3 flex items-center gap-2 text-sm text-muted">
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted">
             <CalendarDays className="size-4" aria-hidden="true" />
             <label htmlFor="date-input">Or choose a date</label>
             <input id="date-input" type="date" min={today} max={days[days.length - 1]} value={day}
               onChange={(e) => e.target.value && setDay(e.target.value)}
-              className="h-10 rounded-xl border border-line-strong bg-[#090b0f] px-3 text-ink" />
+              className="h-11 min-w-0 rounded-xl border border-line-strong bg-[#090b0f] px-3 text-base text-ink" />
           </div>
-          <div className="mt-6 flex justify-end">
-            <Button size="lg" onClick={() => { refresh(day); setStep(1); }}>See times for {formatDate(`${day}T12:00:00Z`, "UTC", "short")}</Button>
+          <div className="mt-5 flex">
+            <Button size="lg" className="w-full sm:ml-auto sm:w-auto" onClick={() => { refresh(day); setStep(1); }}>See times for {formatDate(`${day}T12:00:00Z`, "UTC", "short")}</Button>
           </div>
         </section>
       )}
@@ -167,12 +176,12 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
       {/* Step 2 — Time */}
       {step === 1 && (
         <section aria-labelledby="step-h" className="animate-rise">
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display text-3xl">Choose a time</h2>
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display t-section scroll-mt-[calc(var(--header-h)+1rem)]">Choose a time</h2>
               <p className="text-sm text-muted">{formatDate(`${day}T12:00:00Z`, "UTC")} · {formatDuration(policy.slot_minutes)} sessions{price && policy.payment_mode !== "free" ? ` · ${formatNaira(price.amount_kobo)} per session` : ""}</p>
             </div>
-            <Button variant="outline" size="sm" onClick={() => refresh(day)} disabled={loading} aria-label="Refresh availability">
+            <Button variant="outline" size="sm" className="size-11 shrink-0 px-0" onClick={() => refresh(day)} disabled={loading} aria-label="Refresh availability">
               <RefreshCw className={cx("size-4", loading && "animate-spin")} aria-hidden="true" />
             </Button>
           </div>
@@ -197,13 +206,13 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
 
           {slotError && <Notice tone="danger" className="mb-3">{slotError}</Notice>}
           {slots === null || (loading && slots.length === 0) ? (
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-[74px] rounded-[20px]" />)}</div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-16 rounded-2xl" />)}</div>
           ) : surfaceSlots.length === 0 ? (
             <Notice tone="info">The facility is closed on this day.</Notice>
           ) : (
             <>
               <p className="mb-3 text-sm font-bold" aria-live="polite"><span className="text-signal">{freeCount}</span> of {surfaceSlots.length} slots free</p>
-              <ul className="stagger grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+              <ul className={cx("stagger grid grid-cols-2 gap-2 transition-opacity sm:grid-cols-4", loading && "opacity-60")} aria-busy={loading}>
                 {surfaceSlots.map((s, i) => {
                   const meta = SLOT_STATE[s.state];
                   const label = `${formatRange(s.slot_start, s.slot_end, facility.timezone)}, ${meta.label}`;
@@ -211,17 +220,17 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
                     <li key={s.slot_start} style={{ "--i": Math.min(i, 12) } as CSSProperties}>
                       {meta.bookable ? (
                         <button type="button" onClick={() => pick(s)} aria-label={`Book ${label}`}
-                          className="group relative flex h-[74px] w-full flex-col items-start justify-center overflow-hidden rounded-[20px] border border-signal/45 bg-signal/[0.06] px-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:bg-signal/[0.12] hover:shadow-[0_14px_30px_-14px_rgb(255_197_61/0.8)] active:scale-[0.97]">
-                          <span className="absolute right-3 top-3 size-1.5 rounded-full bg-signal shadow-[0_0_10px_var(--signal)]" aria-hidden="true" />
-                          <span className="font-display text-[26px] leading-none tabular">{formatTime(s.slot_start, facility.timezone)}</span>
-                          <span className="mt-1 text-xs font-bold text-signal">Free · until {formatTime(s.slot_end, facility.timezone)}</span>
+                          className="group relative flex h-16 w-full flex-col items-start justify-center overflow-hidden rounded-2xl border border-signal/45 bg-signal/[0.06] px-3.5 text-left transition-[transform,background-color,border-color,box-shadow] duration-200 hover:border-signal hover:bg-signal/[0.12] hover:shadow-[0_14px_30px_-14px_rgb(255_197_61/0.8)] active:scale-[0.97]">
+                          <span className="absolute right-2.5 top-2.5 size-1.5 rounded-full bg-signal shadow-[0_0_10px_var(--signal)]" aria-hidden="true" />
+                          <span className="font-display text-[20px] leading-none tabular">{formatTime(s.slot_start, facility.timezone)}</span>
+                          <span className="mt-1 text-[11.5px] font-bold text-signal">Free · to {formatTime(s.slot_end, facility.timezone)}</span>
                         </button>
                       ) : (
                         <div aria-label={label} role="img"
-                          className={cx("flex h-[74px] w-full flex-col items-start justify-center rounded-[20px] px-4",
+                          className={cx("flex h-16 w-full flex-col items-start justify-center rounded-2xl px-3.5",
                             s.state === "requested" ? "border border-dashed border-warn/60 bg-warn/[0.04] text-ink/80" : "border border-line bg-bg/60 text-faint line-through decoration-faint/40")}>
-                          <span className="font-display text-[26px] leading-none tabular">{formatTime(s.slot_start, facility.timezone)}</span>
-                          <span className="text-xs">{meta.label}</span>
+                          <span className="font-display text-[20px] leading-none tabular">{formatTime(s.slot_start, facility.timezone)}</span>
+                          <span className="mt-1 text-[11.5px]">{meta.label}</span>
                         </div>
                       )}
                     </li>
@@ -239,11 +248,12 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
       {/* Step 3 — Details */}
       {step === 2 && selected && (
         <form onSubmit={onDetails} noValidate className="animate-rise flex flex-col gap-4" aria-labelledby="step-h">
-          <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display text-3xl">Booking details</h2>
-          <Card className="flex items-center justify-between p-4">
-            <div>
+          <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display t-section scroll-mt-[calc(var(--header-h)+1rem)]">Booking details</h2>
+          <Card className="flex items-center justify-between gap-3 p-4">
+            <div className="min-w-0">
               <p className="text-sm text-muted">{facility.name} · {surfaces.find((s) => s.id === selected.surface_id)?.name}</p>
-              <p className="font-display text-2xl tabular">{formatRange(selected.slot_start, selected.slot_end, facility.timezone)}</p>
+              <p className="font-display text-xl tabular">{formatRange(selected.slot_start, selected.slot_end, facility.timezone)}</p>
+              <p className="text-xs text-muted">{formatDate(selected.slot_start, facility.timezone, "short")}</p>
             </div>
             <Button type="button" variant="outline" size="sm" onClick={() => setStep(1)}>Change</Button>
           </Card>
@@ -270,7 +280,7 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
             <Input id="purpose" placeholder="What's the booking for?" {...form.register("purpose")} />
           </Field>
 
-          <fieldset className="panel flex flex-col gap-4 p-5">
+          <fieldset className="panel flex min-w-0 flex-col gap-4 p-4 sm:p-5">
             <legend className="eyebrow px-1">Organiser</legend>
             <Field id="organizerName" label="Full name" error={form.formState.errors.organizerName?.message}>
               <Input id="organizerName" autoComplete="name" aria-invalid={!!form.formState.errors.organizerName} {...form.register("organizerName")} />
@@ -294,9 +304,9 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
             <span><strong>List on the public schedule</strong><br /><span className="text-muted">Shows the activity and team names (never contact details) once confirmed.</span></span>
           </label>
 
-          <div className="flex justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <Button type="button" variant="ghost" onClick={() => setStep(1)}><ChevronLeft className="size-4" aria-hidden="true" />Time</Button>
-            <Button type="submit" size="lg">Review booking</Button>
+            <Button type="submit" size="lg" className="flex-1 sm:flex-none">Review booking</Button>
           </div>
         </form>
       )}
@@ -304,13 +314,13 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
       {/* Step 4 — Review */}
       {step === 3 && selected && (
         <section aria-labelledby="step-h" className="animate-rise flex flex-col gap-4">
-          <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display text-3xl">Review &amp; submit</h2>
+          <h2 id="step-h" ref={headingRef} tabIndex={-1} className="font-display t-section scroll-mt-[calc(var(--header-h)+1rem)]">Review &amp; submit</h2>
           {submitError && <Notice tone="danger">{submitError}</Notice>}
           <Card className="overflow-hidden">
-            <div className="relative overflow-hidden border-b border-line bg-[linear-gradient(135deg,rgb(255_197_61/0.16),transparent_60%)] p-5">
+            <div className="relative overflow-hidden border-b border-line bg-[linear-gradient(135deg,rgb(255_197_61/0.16),transparent_60%)] p-4">
               <p className="text-sm text-muted">{facility.name} · {surfaces.find((s) => s.id === selected.surface_id)?.name}</p>
-              <p className="font-display mt-1 text-4xl tabular text-signal">{formatRange(selected.slot_start, selected.slot_end, facility.timezone)}</p>
-              <p className="text-sm">{formatDate(selected.slot_start, facility.timezone)}</p>
+              <p className="font-display mt-1 text-[26px] leading-none tabular text-signal">{formatRange(selected.slot_start, selected.slot_end, facility.timezone)}</p>
+              <p className="mt-1 text-sm">{formatDate(selected.slot_start, facility.timezone)}</p>
             </div>
             <dl className="divide-y divide-line text-sm">
               {([
@@ -319,7 +329,8 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
                 ["Teams", [form.getValues("teamName"), form.getValues("opponentName")].filter(Boolean).join(" vs ")],
                 ["Purpose", form.getValues("purpose")],
                 ["Organiser", form.getValues("organizerName")],
-                ["Contact", [form.getValues("organizerPhone"), form.getValues("organizerEmail")].filter(Boolean).join(" · ")],
+                ["Phone", form.getValues("organizerPhone")],
+                ["Email", form.getValues("organizerEmail")],
                 ["Public listing", form.getValues("publicListing") ? "Yes" : "No"],
                 ["Payment", policy.payment_mode === "unconfigured" ? "Method to be confirmed — nothing is charged now"
                   : ["online", "hybrid", "deposit"].includes(policy.payment_mode) && !onlinePayments ? "Online — not open yet. Nothing is charged now"
@@ -328,8 +339,10 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
                 ["Duration", policy.slot_minutes ? `${formatDuration(policy.slot_minutes)} session` : ""],
                 ["Price", amount != null ? `${formatNaira(amount)}${policy.payment_mode === "deposit" ? " deposit" : " per session"}` : ""],
               ] as const).filter(([, v]) => v).map(([k, v]) => (
-                <div key={k} className="flex justify-between gap-4 px-4 py-2.5">
-                  <dt className="text-muted">{k}</dt><dd className="text-right font-medium">{v}</dd>
+                // Label above value on phones (long emails get the full width); side by side from `sm`.
+                <div key={k} className="flex flex-col gap-0.5 px-4 py-2.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+                  <dt className="shrink-0 text-xs text-muted sm:text-sm">{k}</dt>
+                  <dd className="min-w-0 font-medium [overflow-wrap:anywhere] sm:text-right">{v}</dd>
                 </div>
               ))}
             </dl>
@@ -348,14 +361,14 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
             </details>
           )}
 
-          <div className="flex items-center justify-between gap-3">
-            <Button variant="ghost" onClick={() => setStep(2)} disabled={submitting}><ChevronLeft className="size-4" aria-hidden="true" />Details</Button>
-            <Button size="lg" onClick={submit} disabled={submitting} className="min-w-44">
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <Button variant="ghost" onClick={() => setStep(2)} disabled={submitting}><ChevronLeft className="size-4" aria-hidden="true" />Back to details</Button>
+            <Button size="lg" onClick={submit} disabled={submitting} className="w-full sm:w-auto sm:min-w-44">
               {submitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
               {policy.approval_mode === "required" || policy.payment_mode !== "free" ? "Submit request" : "Confirm booking"}
             </Button>
           </div>
-          <p className="text-center text-xs text-muted">The slot is checked again on the server when you submit. <Chip>No charge is taken on this screen</Chip></p>
+          <p className="flex flex-wrap items-center justify-center gap-2 text-center text-xs text-muted">The slot is checked again when you submit. <Chip>No charge is taken here</Chip></p>
         </section>
       )}
     </div>

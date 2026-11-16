@@ -82,7 +82,7 @@ export function Field({ id, label, hint, error, children, className = "" }:
 }
 
 export const inputClass =
-  "h-12 w-full rounded-2xl border border-line-strong bg-[#090b0f] px-4 text-[15px] text-ink shadow-[inset_0_2px_6px_rgb(0_0_0/0.35)] outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-faint hover:border-[#3b4256] focus:border-signal/70 focus:shadow-[0_0_0_4px_rgb(255_197_61/0.12),inset_0_2px_6px_rgb(0_0_0/0.35)] focus-visible:outline-none aria-[invalid=true]:border-danger/70 disabled:opacity-50";
+  "h-12 w-full rounded-2xl border border-line-strong bg-[#090b0f] px-4 text-base text-ink shadow-[inset_0_2px_6px_rgb(0_0_0/0.35)] outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-faint hover:border-[#3b4256] focus:border-signal/70 focus:shadow-[0_0_0_4px_rgb(255_197_61/0.12),inset_0_2px_6px_rgb(0_0_0/0.35)] focus-visible:outline-none aria-[invalid=true]:border-danger/70 disabled:opacity-50";
 
 export function Input(props: ComponentProps<"input">) {
   return <input {...props} className={cx(inputClass, props.className)} />;
@@ -105,10 +105,10 @@ export function Skeleton({ className = "" }: { className?: string }) {
 export function EmptyState({ title, body, action, art, className = "" }:
   { title: string; body?: ReactNode; action?: ReactNode; art?: ReactNode; className?: string }) {
   return (
-    <div className={cx("panel relative flex flex-col items-center gap-3 overflow-hidden px-6 py-12 text-center", className)}>
+    <div className={cx("panel relative flex flex-col items-center gap-3 overflow-hidden px-5 py-9 text-center sm:px-6 sm:py-12", className)}>
       <div className="pitch-lines pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
       <div className="relative floaty">{art ?? <ArtEmpty className="h-28 w-auto" />}</div>
-      <p className="font-display relative mt-1 text-2xl">{title}</p>
+      <p className="font-display t-section relative mt-1">{title}</p>
       {body && <div className="relative max-w-md text-sm leading-relaxed text-muted">{body}</div>}
       {action && <div className="relative mt-2">{action}</div>}
     </div>
@@ -137,10 +137,10 @@ export function Notice({ tone = "info", title, children, className = "" }:
 
 export function SectionHeading({ eyebrow, title, action, sub }: { eyebrow?: string; title: string; action?: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="mb-6 flex items-end justify-between gap-4">
-      <div>
+    <div className="mb-5 flex items-end justify-between gap-4">
+      <div className="min-w-0">
         {eyebrow && <p className="eyebrow mb-2 flex items-center gap-2"><span className="h-px w-6 bg-signal/70" aria-hidden="true" />{eyebrow}</p>}
-        <h2 className="font-display text-3xl sm:text-[40px]">{title}</h2>
+        <h2 className="font-display t-page">{title}</h2>
         {sub && <p className="mt-2 max-w-xl text-sm text-muted">{sub}</p>}
       </div>
       {action}

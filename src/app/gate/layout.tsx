@@ -16,7 +16,7 @@ export default async function GateLayout({ children }: LayoutProps<"/gate">) {
           </span>
         </div>
       </header>
-      <main id="main" className="mx-auto w-full max-w-xl flex-1 px-4 pb-28 pt-4">{children}</main>
+      <main id="main" className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-nav pt-4">{children}</main>
       <GateNav />
     </div>
   );

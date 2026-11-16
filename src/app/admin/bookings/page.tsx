@@ -80,17 +80,45 @@ export default async function AdminBookings(props: PageProps<"/admin/bookings">)
           <input type="hidden" name="view" value={view} />
           <label className="sr-only" htmlFor="q">Search</label>
           <input id="q" name="q" defaultValue={q} placeholder="Reference, organiser or team"
-            className="h-10 min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 text-sm" />
+            className="h-11 min-w-0 basis-full rounded-xl border border-line bg-surface px-3 text-base sm:basis-auto sm:flex-1 sm:text-sm" />
           <label className="sr-only" htmlFor="date">Date</label>
-          <input id="date" name="date" type="date" defaultValue={date ?? ""} className="h-10 rounded-xl border border-line bg-surface px-3 text-sm" />
-          <button className="h-10 rounded-xl bg-ink px-4 text-sm font-semibold text-bg">Filter</button>
+          <input id="date" name="date" type="date" defaultValue={date ?? ""} className="h-11 min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 text-base sm:flex-none sm:text-sm" />
+          <button className="h-11 shrink-0 rounded-xl bg-ink px-5 text-sm font-semibold text-bg">Filter</button>
         </form>
       </div>
 
       {error ? <Notice tone="danger">Couldn&apos;t load bookings.</Notice> : bookings.length === 0 ? (
         <EmptyState art={<ArtSearch className="h-28 w-auto" />} title="No bookings here" body="Nothing matches these filters yet." />
       ) : (
-        <div className="overflow-x-auto panel">
+        <>
+        {/* Phones: one card per booking instead of a sideways-scrolling table. */}
+        <ul className="flex flex-col gap-2 md:hidden">
+          {bookings.map((b) => {
+            const { start, end } = parseRange(b.period);
+            const h = bookingHeadline(b);
+            return (
+              <li key={b.id}>
+                <Link href={`/admin/bookings/${b.id}`} className="panel lift flex flex-col gap-2 p-3.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold tabular">{formatDate(start, undefined, "short")} · {formatRange(start, end)}</p>
+                      <p className="truncate text-sm text-muted">{b.facilities?.name} · {b.playing_surfaces?.name}</p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1"><Chip tone={h.tone}>{h.label}</Chip>{b.is_test && <Chip tone="warn">TEST</Chip>}</div>
+                  </div>
+                  <p className="truncate text-sm">{b.organizer_name}{b.source !== "customer" && <span className="ml-1 text-xs text-muted">({b.source === "walk_in" ? "walk-in" : "staff"})</span>}
+                    {(b.activity_title || b.team_name) && <span className="text-muted"> · {b.activity_title ?? [b.team_name, b.opponent_name].filter(Boolean).join(" vs ")}</span>}</p>
+                  <p className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted">
+                    <span className="font-mono text-ink/80">{b.reference}</span>
+                    {b.amount_due_kobo != null && <span className="font-mono">{formatNaira(b.amount_due_kobo)}</span>}
+                    <span>{PAYMENT_LABEL[b.payment_status]}</span>
+                  </p>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="hidden overflow-x-auto panel md:block">
           <table className="data-table min-w-[820px]">
             <thead className="border-b border-line text-left text-xs text-muted">
               <tr>
@@ -128,6 +156,7 @@ export default async function AdminBookings(props: PageProps<"/admin/bookings">)
             </tbody>
           </table>
         </div>
+        </>
       )}
     </>
   );

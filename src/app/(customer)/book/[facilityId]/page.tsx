@@ -29,16 +29,16 @@ export default async function BookPage(props: PageProps<"/book/[facilityId]">) {
   const defaultPrice = d.prices.find((p) => p.is_default) ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-8">
+    <div className="mx-auto w-full max-w-3xl page-pad">
       <Link href={`/facilities/${d.facility.slug}`} className="inline-flex items-center gap-1 text-sm font-bold text-muted transition-colors hover:text-signal">
         <ChevronLeft className="size-4" aria-hidden="true" />{d.facility.name}
       </Link>
-      <p className="eyebrow mt-4">New booking</p>
-      <h1 className="font-display mt-2 text-5xl">Grab your <span className="text-beam">slot.</span></h1>
+      <p className="eyebrow mt-3">New booking</p>
+      <h1 className="font-display t-page mt-1.5">Grab your <span className="text-beam">slot.</span></h1>
       {d.facility.is_dev_fixture && <div className="mt-2"><DevFixtureBadge /></div>}
 
       {d.readiness.bookable && access.can_book && access.test_mode && (
-        <Notice tone="warn" title="Test booking mode" className="mt-6">
+        <Notice tone="warn" title="Test booking mode" className="mt-4">
           Public booking isn&apos;t open yet. Anything you book now is a <strong>TEST booking</strong>: it holds the slot so the
           system can be tested, but it is not a real reservation and no payment is collected.
         </Notice>

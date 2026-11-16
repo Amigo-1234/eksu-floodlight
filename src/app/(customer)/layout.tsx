@@ -6,7 +6,7 @@ export default function CustomerLayout({ children }: LayoutProps<"/">) {
     <>
       <BackendNotice />
       <SiteHeader />
-      <main id="main" className="flex-1 pb-24 sm:pb-12">{children}</main>
+      <main id="main" className="flex flex-1 flex-col pb-nav sm:pb-12">{children}</main>
       <BottomNav />
     </>
   );

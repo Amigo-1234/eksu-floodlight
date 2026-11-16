@@ -75,7 +75,7 @@ export function FacilityCard({ f }: { f: FacilityCardData }) {
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5 pt-3">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-[24px] leading-tight">{f.name}</h3>
+          <h3 className="font-display text-[22px] leading-tight sm:text-[24px]">{f.name}</h3>
           <span className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full border border-line-strong text-muted transition-all duration-300 group-hover:rotate-45 group-hover:border-signal/60 group-hover:bg-signal group-hover:text-signal-ink">
             <ArrowUpRight className="size-4" aria-hidden="true" />
           </span>

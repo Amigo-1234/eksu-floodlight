@@ -27,7 +27,7 @@ export default async function GateToday(props: PageProps<"/gate">) {
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <p className="eyebrow">Today at</p>
-          <h1 className="font-display mt-1 text-4xl">{f.name}</h1>
+          <h1 className="font-display t-page mt-1">{f.name}</h1>
         </div>
         {ctx.facilities.length > 1 && <Link href="/gate?facility=" className="text-sm text-muted">Switch</Link>}
       </div>

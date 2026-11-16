@@ -61,7 +61,7 @@ export default async function HomePage() {
               <span className="live-dot size-1.5 rounded-full bg-signal shadow-[0_0_10px_var(--signal)]" aria-hidden="true" />
               EKSU sports facility booking
             </p>
-            <h1 className="font-display text-[54px] leading-[0.92] sm:text-[78px]" style={stagger(1)}>
+            <h1 className="font-display t-hero" style={stagger(1)}>
               Your game,<br /><span className="text-beam">under the lights.</span>
             </h1>
             <p className="max-w-md text-[17px] leading-relaxed text-ink/80" style={stagger(2)}>
@@ -88,7 +88,7 @@ export default async function HomePage() {
                   <span className="flex items-center gap-1.5"><LogoMark size={18} plain />Entry pass</span>
                   <span>Confirmed</span>
                 </div>
-                <p className="font-display mt-4 text-[44px] leading-none">Kick-off</p>
+                <p className="font-display t-display mt-4">Kick-off</p>
                 <p className="mt-1 text-sm font-bold opacity-80">Your slot · your team · your time</p>
               </div>
               <div className="ticket-notch h-6 border-b border-dashed border-line" />
@@ -212,7 +212,7 @@ export default async function HomePage() {
           <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="eyebrow flex items-center gap-2"><Sparkles className="size-3.5" aria-hidden="true" />Free to join</p>
-              <h2 className="font-display mt-2 text-4xl sm:text-5xl">Got a team? Get a slot.</h2>
+              <h2 className="font-display t-display mt-2">Got a team? Get a slot.</h2>
               <p className="mt-2 max-w-md text-muted">Create your account once — book any facility in seconds after that.</p>
             </div>
             <div className="flex flex-wrap gap-3">

@@ -10,7 +10,7 @@ export function AuthShell({ eyebrow, title, subtitle, children }: { eyebrow: str
   return (
     <div className="floodlight-sky relative flex flex-1 overflow-hidden">
       <div className="pitch-lines pointer-events-none absolute inset-0" aria-hidden="true" />
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-10 lg:grid-cols-[1fr_440px] lg:py-16">
+      <div className="relative mx-auto grid w-full max-w-6xl items-start gap-10 px-4 py-5 sm:py-10 lg:grid-cols-[1fr_440px] lg:items-center lg:py-16">
         <div className="hidden flex-col gap-6 lg:flex">
           <ArtLamp className="-ml-6 h-72 w-72" />
           <div>
@@ -24,11 +24,11 @@ export function AuthShell({ eyebrow, title, subtitle, children }: { eyebrow: str
             </ul>
           </div>
         </div>
-        <div className="panel glow-ring animate-rise relative w-full overflow-hidden p-6 sm:p-8">
+        <div className="panel glow-ring animate-rise relative mx-auto w-full max-w-[440px] overflow-hidden p-5 sm:p-8">
           <div className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-signal/15 blur-3xl" aria-hidden="true" />
-          <ArtLamp className="relative -mb-2 -ml-3 -mt-4 h-24 w-24 lg:hidden" />
+          <ArtLamp className="relative -mb-3 -ml-3 -mt-4 h-16 w-16 lg:hidden" />
           <p className="eyebrow relative">{eyebrow}</p>
-          <h1 className="font-display relative mt-2 text-[40px] leading-[0.98]">{title}</h1>
+          <h1 className="font-display t-page relative mt-2">{title}</h1>
           {subtitle && <p className="relative mb-6 mt-2 text-sm text-muted">{subtitle}</p>}
           <div className="relative">{children}</div>
         </div>
