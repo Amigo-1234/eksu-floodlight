@@ -21,7 +21,7 @@ export function BookingTicket({ booking: b, receipt, pass }: { booking: Booking;
         <div className="pitch-lines pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" />
         <div className="relative flex items-center justify-between px-5 pt-4 font-mono text-[10.5px] font-medium uppercase tracking-[0.18em]">
           <span className="flex items-center gap-2"><LogoMark size={20} plain={confirmed} />{brand.name}</span>
-          <span>{confirmed ? "Entry pass" : "Booking request"}</span>
+          <span>{confirmed ? (pass.available ? "Entry pass" : "Booking receipt") : "Booking request"}</span>
         </div>
         <div className="relative px-5 pb-6 pt-4">
           <p className="font-display text-[68px] leading-[0.85] tracking-[-0.05em] tabular">{formatRange(start, end, tz).split(" – ")[0]}</p>
