@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Bell } from "lucide-react";
-import { ButtonLink, Chip, EmptyState } from "@/components/ui";
+import { Bell, Plus } from "lucide-react";
+import { ButtonLink, Chip, EmptyState, Notice } from "@/components/ui";
 import { ArtTicket } from "@/components/brand/Illustrations";
 import { BookingRow } from "@/components/booking/BookingRow";
 import { requireViewer } from "@/lib/auth";
@@ -15,7 +15,8 @@ import { nowMs } from "@/lib/clock";
 export const metadata: Metadata = { title: "My dashboard" };
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: PageProps<"/dashboard">) {
+  const { welcome, password } = await props.searchParams;
   const viewer = await requireViewer("/dashboard");
   const supabase = await createSupabaseServerClient();
   const [bookings, { data: notes }] = await Promise.all([
@@ -36,8 +37,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl page-pad">
-      <p className="eyebrow">Dashboard</p>
-      <h1 className="font-display t-page mt-1.5">Hey{viewer.fullName ? `, ${viewer.fullName.split(" ")[0]}` : ""} <span aria-hidden="true">👋</span></h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="font-display t-page min-w-0">Hey{viewer.fullName ? `, ${viewer.fullName.split(" ")[0]}` : ""} <span aria-hidden="true">👋</span></h1>
+        <ButtonLink href="/facilities" size="sm" className="shrink-0"><Plus className="size-4" aria-hidden="true" />Book</ButtonLink>
+      </div>
+      {welcome && (
+        <Notice tone="ok" title="Welcome to Floodlight!" className="mt-4">Your account is ready. Pick a facility to book your first session.</Notice>
+      )}
+      {password === "updated" && <Notice tone="ok" className="mt-4">Password updated.</Notice>}
 
       {next ? (() => {
         const { start, end } = parseRange(next.period);
@@ -64,8 +71,8 @@ export default async function DashboardPage() {
         );
       })() : (
         <div className="mt-5">
-          <EmptyState art={<ArtTicket className="h-28 w-auto" />} title="No games lined up" body="Find a facility and grab a time that suits your team."
-            action={<ButtonLink href="/facilities">Book a slot</ButtonLink>} />
+          <EmptyState art={<ArtTicket className="h-24 w-auto" />} title="No games lined up" body="Pick a field and a time."
+            action={<ButtonLink href="/facilities">Book a session</ButtonLink>} />
         </div>
       )}
 
@@ -76,15 +83,15 @@ export default async function DashboardPage() {
       </nav>
 
       {pendingList.length > 0 && (
-        <section className="mt-7" aria-labelledby="pend-h">
+        <section className="mt-6" aria-labelledby="pend-h">
           <h2 id="pend-h" className="font-display t-section mb-2.5">Pending requests</h2>
-          <ul className="flex flex-col gap-2">{pendingList.slice(0, 5).map((b) => <BookingRow key={b.id} b={b} href={`/dashboard/bookings/${b.id}`} />)}</ul>
+          <ul className="flex flex-col gap-2">{pendingList.slice(0, 3).map((b) => <BookingRow key={b.id} b={b} href={`/dashboard/bookings/${b.id}`} />)}</ul>
         </section>
       )}
       {confirmedList.length > 0 && (
-        <section className="mt-7" aria-labelledby="conf-h">
+        <section className="mt-6" aria-labelledby="conf-h">
           <h2 id="conf-h" className="font-display t-section mb-2.5">Confirmed</h2>
-          <ul className="flex flex-col gap-2">{confirmedList.slice(0, 5).map((b) => <BookingRow key={b.id} b={b} href={`/dashboard/bookings/${b.id}`} />)}</ul>
+          <ul className="flex flex-col gap-2">{confirmedList.slice(0, 3).map((b) => <BookingRow key={b.id} b={b} href={`/dashboard/bookings/${b.id}`} />)}</ul>
         </section>
       )}
       <p className="mt-4 text-right text-sm"><Link href="/dashboard/bookings?tab=past" className="font-semibold text-signal">Booking history →</Link></p>
@@ -97,15 +104,15 @@ export default async function DashboardPage() {
           )}
         </div>
         {(notes ?? []).length === 0 ? (
-          <p className="panel p-4 text-sm text-muted">No updates yet. You&apos;ll see approvals, confirmations and changes here.</p>
+          <p className="panel p-4 text-sm text-muted">No updates yet.</p>
         ) : (
           <ul className="panel flex flex-col divide-y divide-line">
-            {notes!.map((n) => (
+            {notes!.slice(0, 4).map((n) => (
               <li key={n.id} className="flex gap-3 p-3">
                 <span className={`mt-1.5 size-2 shrink-0 rounded-full ${n.read_at ? "bg-transparent" : "bg-signal"}`} aria-hidden="true" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold">{n.booking_id ? <Link href={`/dashboard/bookings/${n.booking_id}`} className="hover:underline">{n.title}</Link> : n.title}</p>
-                  <p className="text-sm text-muted">{n.body}</p>
+                  <p className="line-clamp-2 text-sm text-muted">{n.body}</p>
                   <p className="text-xs text-faint">{formatDateTime(n.created_at)}</p>
                 </div>
               </li>

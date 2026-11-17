@@ -32,7 +32,7 @@ export function AdminNav({ isOwner }: { isOwner: boolean }) {
           return (
             <li key={href} className="shrink-0">
               <Link href={`${href}${qs}`} aria-current={active ? "page" : undefined}
-                className={`relative flex items-center gap-2.5 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition-colors duration-200 max-lg:border ${active ? "bg-signal/[0.12] text-signal max-lg:border-signal/40" : "text-muted hover:bg-white/[0.04] hover:text-ink max-lg:border-line"}`}>
+                className={`relative flex items-center gap-2.5 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition-colors duration-200 max-lg:border ${active ? "bg-signal/[0.12] text-signal max-lg:border-signal/40" : "text-muted hover:bg-ink/[0.04] hover:text-ink max-lg:border-line"}`}>
                 {active && <span className="absolute -left-px top-2 bottom-2 hidden w-[3px] rounded-full bg-signal shadow-[0_0_10px_var(--signal)] lg:block" aria-hidden="true" />}
                 <Icon className="size-4" aria-hidden="true" />{label}
               </Link>

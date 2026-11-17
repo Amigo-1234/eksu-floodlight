@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, Clock3, MapPin, ShieldCheck, Zap } from "lucide-react";
+import { ArrowUpRight, Clock3 } from "lucide-react";
 import { Chip } from "@/components/ui";
 import { facilityImageUrl, type FacilityCardData } from "@/lib/data";
 import { formatDuration, formatNaira } from "@/lib/format";
@@ -55,51 +55,35 @@ export function FacilityCard({ f }: { f: FacilityCardData }) {
   const free = f.readiness.bookable ? f.freeToday : null;
   return (
     <Link href={`/facilities/${f.slug}`} className="panel lift group flex h-full flex-col overflow-hidden">
-      <div className="relative aspect-[16/9] overflow-hidden">
+      <div className="relative aspect-[2/1] overflow-hidden">
         {img
           // eslint-disable-next-line @next/next/no-img-element -- Supabase public storage URL, sized by CSS
           ? <img src={img} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" loading="lazy" />
           : <PitchArt sport={sport} className="h-full w-full transition-transform duration-500 group-hover:scale-[1.04]" />}
         <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/10 to-transparent" aria-hidden="true" />
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          <Chip tone="muted" className="!bg-black/50 backdrop-blur">{f.sport_categories?.name ?? "Sport"}</Chip>
+          <Chip tone="muted" className="!border-white/20 !bg-black/55 !text-white/90 backdrop-blur">{f.sport_categories?.name ?? "Sport"}</Chip>
           {f.is_dev_fixture && <Chip tone="warn">Dev fixture</Chip>}
         </div>
         <div className="absolute right-3 top-3">
           {free !== null && free !== undefined ? (
-            <Chip tone={free > 0 ? "signal" : "muted"} live={free > 0} className={free > 0 ? "!bg-black/60 backdrop-blur" : "!bg-black/50 backdrop-blur"}>
+            <Chip tone={free > 0 ? "signal" : "muted"} live={free > 0} className={free > 0 ? "!border-[#ffc53d]/50 !bg-black/60 !text-[#ffc53d] backdrop-blur" : "!border-white/20 !bg-black/55 !text-white/90 backdrop-blur"}>
               {free > 0 ? `${free} free today` : "Full today"}
             </Chip>
-          ) : !f.readiness.bookable ? <Chip tone="muted" className="!bg-black/50 backdrop-blur">Opening soon</Chip> : null}
+          ) : !f.readiness.bookable ? <Chip tone="muted" className="!border-white/20 !bg-black/55 !text-white/90 backdrop-blur">Opening soon</Chip> : null}
         </div>
       </div>
-      <div className="flex flex-1 flex-col gap-3 p-5 pt-3">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-[22px] leading-tight sm:text-[24px]">{f.name}</h3>
-          <span className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full border border-line-strong text-muted transition-all duration-300 group-hover:rotate-45 group-hover:border-signal/60 group-hover:bg-signal group-hover:text-signal-ink">
-            <ArrowUpRight className="size-4" aria-hidden="true" />
-          </span>
-        </div>
-        {f.location_label && <p className="-mt-1 flex items-center gap-1.5 text-sm text-muted"><MapPin className="size-3.5" aria-hidden="true" />{f.location_label}</p>}
-        {f.policy?.payment_mode === "free"
-          ? <p className="font-display text-xl text-signal">Free</p>
-          : f.slotPriceKobo != null && (
-            <p className="flex items-baseline gap-1.5">
-              <span className="font-display text-2xl text-signal tabular">{formatNaira(f.slotPriceKobo)}</span>
-              <span className="text-xs font-semibold text-muted">{f.policy?.slot_minutes ? `/ ${formatDuration(f.policy.slot_minutes)} session` : "per session"}</span>
-            </p>
-          )}
-        <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1.5 border-t border-line pt-3 text-[12.5px] font-semibold text-muted">
-          {f.policy?.slot_minutes && <span className="inline-flex items-center gap-1.5"><Clock3 className="size-3.5 text-signal" aria-hidden="true" />{formatDuration(f.policy.slot_minutes)} sessions</span>}
-          {f.policy && (
-            <span className="inline-flex items-center gap-1.5">
-              {f.policy.approval_mode === "required"
-                ? <><ShieldCheck className="size-3.5 text-glow" aria-hidden="true" />Staff approval</>
-                : <><Zap className="size-3.5 text-glow" aria-hidden="true" />Instant confirm</>}
-            </span>
-          )}
-          {f.surfaces > 1 && <span>{f.surfaces} areas</span>}
-        </div>
+      <div className="flex flex-1 flex-col gap-1.5 p-4 pt-2">
+        <h3 className="font-display text-[21px] leading-tight">{f.name}</h3>
+        <p className="flex flex-wrap items-baseline gap-x-2 text-sm text-muted">
+          {f.policy?.payment_mode === "free"
+            ? <span className="font-bold text-signal">Free</span>
+            : f.slotPriceKobo != null && <span className="font-display text-lg text-signal tabular">{formatNaira(f.slotPriceKobo)}</span>}
+          {f.policy?.slot_minutes && <span className="inline-flex items-center gap-1"><Clock3 className="size-3.5" aria-hidden="true" />{formatDuration(f.policy.slot_minutes)} session</span>}
+        </p>
+        <span className="mt-auto inline-flex items-center gap-1 pt-2 text-sm font-bold text-signal">
+          {f.readiness.bookable ? "View times" : "View details"}<ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+        </span>
       </div>
     </Link>
   );

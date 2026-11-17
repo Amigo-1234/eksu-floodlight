@@ -18,10 +18,10 @@ type Size = "sm" | "md" | "lg";
 const variantClass: Record<Variant, string> = {
   signal:
     "bg-[linear-gradient(180deg,#ffd166_0%,var(--signal)_45%,var(--signal-2)_100%)] text-signal-ink shadow-[0_10px_30px_-12px_rgb(255_197_61/0.75),inset_0_1px_0_rgb(255_255_255/0.45)] hover:shadow-[0_14px_38px_-12px_rgb(255_197_61/0.9),inset_0_1px_0_rgb(255_255_255/0.5)] hover:-translate-y-px",
-  solid: "bg-ink text-bg hover:bg-white hover:-translate-y-px",
+  solid: "bg-ink text-bg hover:opacity-90 hover:-translate-y-px",
   outline:
-    "border border-line-strong bg-white/[0.02] text-ink hover:border-signal/50 hover:bg-white/[0.05] shadow-[inset_0_1px_0_rgb(255_255_255/0.04)]",
-  ghost: "text-muted hover:bg-white/[0.05] hover:text-ink",
+    "border border-line-strong bg-ink/[0.02] text-ink hover:border-signal/50 hover:bg-ink/[0.05] shadow-[inset_0_1px_0_rgb(var(--tint)/0.04)]",
+  ghost: "text-muted hover:bg-ink/[0.05] hover:text-ink",
   danger: "border border-danger/45 bg-danger/[0.06] text-danger hover:bg-danger/[0.12]",
 };
 const sizeClass: Record<Size, string> = {
@@ -55,7 +55,7 @@ const toneClass: Record<Tone, string> = {
   warn: "bg-warn/10 text-warn border-warn/35",
   danger: "bg-danger/10 text-danger border-danger/35",
   info: "bg-info/10 text-info border-info/30",
-  muted: "bg-white/[0.03] text-muted border-line-strong",
+  muted: "bg-ink/[0.03] text-muted border-line-strong",
   signal: "bg-signal/[0.14] text-signal border-signal/40",
 };
 
@@ -82,14 +82,14 @@ export function Field({ id, label, hint, error, children, className = "" }:
 }
 
 export const inputClass =
-  "h-12 w-full rounded-2xl border border-line-strong bg-[#090b0f] px-4 text-base text-ink shadow-[inset_0_2px_6px_rgb(0_0_0/0.35)] outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-faint hover:border-[#3b4256] focus:border-signal/70 focus:shadow-[0_0_0_4px_rgb(255_197_61/0.12),inset_0_2px_6px_rgb(0_0_0/0.35)] focus-visible:outline-none aria-[invalid=true]:border-danger/70 disabled:opacity-50";
+  "h-12 w-full rounded-2xl border border-line-strong bg-[var(--input-bg)] px-4 text-base text-ink shadow-[var(--input-shadow)] outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-faint hover:border-faint focus:border-signal/70 focus:shadow-[0_0_0_4px_rgb(255_197_61/0.18)] focus-visible:outline-none aria-[invalid=true]:border-danger/70 disabled:opacity-50";
 
 export function Input(props: ComponentProps<"input">) {
   return <input {...props} className={cx(inputClass, props.className)} />;
 }
 
 const chevron =
-  "bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a3a9b9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E\")] bg-[length:16px] bg-[right_14px_center] bg-no-repeat pr-10";
+  "bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23928b7c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E\")] bg-[length:16px] bg-[right_14px_center] bg-no-repeat pr-10";
 
 export function Select(props: ComponentProps<"select">) {
   return <select {...props} className={cx(inputClass, "appearance-none", chevron, props.className)} />;
@@ -153,7 +153,7 @@ export function PillLink({ active, className = "", ...props }: ComponentProps<ty
   return (
     <Link {...props} aria-current={active ? "page" : undefined}
       className={cx("inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-bold transition-colors duration-200",
-        active ? "border-signal/60 bg-signal/[0.14] text-signal" : "border-line-strong text-muted hover:border-[#3b4256] hover:text-ink", className)} />
+        active ? "border-signal/60 bg-signal/[0.14] text-signal" : "border-line-strong text-muted hover:border-faint hover:text-ink", className)} />
   );
 }
 

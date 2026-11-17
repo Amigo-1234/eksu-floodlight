@@ -30,7 +30,7 @@ export default async function FacilityAdminPage(props: PageProps<"/admin/facilit
   return (
     <>
       <Link href="/admin/facilities" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ChevronLeft className="size-4" aria-hidden="true" />Facilities</Link>
-      <div className="mb-6 mt-2 flex flex-wrap items-end justify-between gap-3">
+      <div className="mb-4 mt-2 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display t-page">{d.facility.name}</h1>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -48,18 +48,26 @@ export default async function FacilityAdminPage(props: PageProps<"/admin/facilit
       )}
       {!canEdit && <Notice tone="info" className="mb-4">You can view this facility. Only its facility administrators can change settings.</Notice>}
 
-      <fieldset disabled={!canEdit} className="grid gap-4 xl:grid-cols-2">
-        <div className="flex flex-col gap-4">
-          <FacilityDetailsForm f={d.facility} categories={(cats ?? []) as SportCategory[]} />
-          <ImageUploadForm facilityId={id} images={d.images.map((i) => ({ id: i.id, alt_text: i.alt_text, url: facilityImageUrl(i.storage_path) }))} />
-        </div>
-        <div className="flex flex-col gap-4">
-          <PolicyForm facilityId={id} policy={d.policy} />
-          <SurfacesForm facilityId={id} surfaces={d.surfaces} />
-          <HoursForm facilityId={id} hours={d.hours} />
-          <PricesForm facilityId={id} prices={d.prices} />
-        </div>
+      {/* Each settings group folds away so the page stays short; prices and hours (changed most) start open. */}
+      <fieldset disabled={!canEdit} className="flex min-w-0 flex-col gap-2">
+        <Section title="Prices" open><PricesForm facilityId={id} prices={d.prices} /></Section>
+        <Section title="Opening hours" open><HoursForm facilityId={id} hours={d.hours} /></Section>
+        <Section title="Booking policy"><PolicyForm facilityId={id} policy={d.policy} /></Section>
+        <Section title="Details"><FacilityDetailsForm f={d.facility} categories={(cats ?? []) as SportCategory[]} /></Section>
+        <Section title="Playing areas"><SurfacesForm facilityId={id} surfaces={d.surfaces} /></Section>
+        <Section title="Photos"><ImageUploadForm facilityId={id} images={d.images.map((i) => ({ id: i.id, alt_text: i.alt_text, url: facilityImageUrl(i.storage_path) }))} /></Section>
       </fieldset>
     </>
+  );
+}
+
+function Section({ title, open = false, children }: { title: string; open?: boolean; children: React.ReactNode }) {
+  return (
+    <details open={open} className="group">
+      <summary className="flex min-h-11 items-center justify-between rounded-2xl border border-line bg-surface px-4 text-sm font-bold">
+        {title}<span className="text-lg leading-none text-signal transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span>
+      </summary>
+      <div className="details-body mt-2 mb-2">{children}</div>
+    </details>
   );
 }

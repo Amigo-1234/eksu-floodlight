@@ -32,7 +32,7 @@ const resetSchema = z.object({ password: newPassword, confirm: z.string() })
 function authMessage(msg: string): string {
   if (/invalid login credentials/i.test(msg)) return "Incorrect email or password.";
   if (/email not confirmed/i.test(msg)) return "Please confirm your email address first — check your inbox (and spam folder).";
-  if (/already registered|already exists/i.test(msg)) return "An account already exists for that email. Try signing in.";
+  if (/already registered|already exists|user_already_exists/i.test(msg)) return "An account already exists for that email. Try signing in.";
   if (/rate limit|too many|security purposes/i.test(msg)) return "Too many attempts. Please wait a few minutes and try again.";
   if (/signups? not allowed|signup.*disabled/i.test(msg)) return "New accounts aren't open yet. Please sign in with the account you were given.";
   if (/same.*password|different from the old/i.test(msg)) return "Choose a password you haven't used for this account before.";
@@ -60,6 +60,9 @@ function PasswordChecklist({ value }: { value: string }) {
     </ul>
   );
 }
+
+/** Adds ?welcome=1 so the dashboard can greet a brand-new account. Exported for tests via auth-rules. */
+const withWelcome = (path: string) => path + (path.includes("?") ? "&" : "?") + "welcome=1";
 
 const callbackUrl = (next: string) => `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
@@ -98,7 +101,12 @@ export function SignInForm({ next, disabled }: { next: string; disabled?: boolea
 
   const onSubmit = handleSubmit(async (v) => {
     setError(null); setUnconfirmed(null);
-    const { error } = await supabaseBrowser().auth.signInWithPassword({ email: v.email, password: v.password });
+    let error: { message: string } | null = null;
+    try {
+      ({ error } = await supabaseBrowser().auth.signInWithPassword({ email: v.email, password: v.password }));
+    } catch {
+      return setError("Can't reach the server. Check your connection and try again.");
+    }
     if (error) {
       if (/email not confirmed/i.test(error.message)) setUnconfirmed(v.email);
       return setError(authMessage(error.message));
@@ -130,7 +138,7 @@ export function SignInForm({ next, disabled }: { next: string; disabled?: boolea
   );
 }
 
-export function SignUpForm({ next, disabled }: { next: string; disabled?: boolean }) {
+export function SignUpForm({ next, disabled, confirmEmail = true }: { next: string; disabled?: boolean; confirmEmail?: boolean }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -142,17 +150,26 @@ export function SignUpForm({ next, disabled }: { next: string; disabled?: boolea
     // Honeypot (invisible to people): if a bot filled it, pretend success so it learns nothing.
     // Real protection is server-side: Supabase Auth's per-IP sign-up/email rate limits.
     if (v.website) { setSentTo(v.email); return; }
-    const { data, error } = await supabaseBrowser().auth.signUp({
-      email: v.email, password: v.password,
-      // display_name is read by the shared auth's EKSU Sports Hub profile trigger; full_name by Floodlight.
-      options: { data: { full_name: v.fullName, display_name: v.fullName, app: "floodlight" }, emailRedirectTo: callbackUrl(next) },
-    });
+    // Only role-neutral profile data is sent. Roles can't be set from here: staff
+    // access exists only through invitations, checked in the database.
+    let res: Awaited<ReturnType<ReturnType<typeof supabaseBrowser>["auth"]["signUp"]>>;
+    try {
+      res = await supabaseBrowser().auth.signUp({
+        email: v.email, password: v.password,
+        // display_name is read by the shared auth's EKSU Sports Hub profile trigger; full_name by Floodlight.
+        options: { data: { full_name: v.fullName, display_name: v.fullName, app: "floodlight" }, emailRedirectTo: callbackUrl(next) },
+      });
+    } catch {
+      return setError("Can't reach the server. Check your connection and try again.");
+    }
+    const { data, error } = res;
     if (error) return setError(authMessage(error.message));
     if (isExistingAccountResponse(data.user)) {
       return setError("An account already exists for that email. Sign in, or use “Forgot password?” if you can't remember it.");
     }
     if (data.session) {
-      router.replace(next);
+      // Email confirmation is off: the account is active and signed in already.
+      router.replace(withWelcome(next));
       router.refresh();
     } else {
       setSentTo(v.email);
@@ -181,7 +198,7 @@ export function SignUpForm({ next, disabled }: { next: string; disabled?: boolea
       <Field id="fullName" label="Full name" error={formState.errors.fullName?.message}>
         <Input id="fullName" autoComplete="name" aria-invalid={!!formState.errors.fullName} {...register("fullName")} />
       </Field>
-      <Field id="email" label="Email" hint="We'll send a link to confirm it." error={formState.errors.email?.message}>
+      <Field id="email" label="Email" hint={confirmEmail ? "We'll send a link to confirm it." : undefined} error={formState.errors.email?.message}>
         <Input id="email" type="email" autoComplete="email" inputMode="email" aria-invalid={!!formState.errors.email} {...register("email")} />
       </Field>
       <Field id="password" label="Password" error={formState.errors.password?.message}>
@@ -201,7 +218,7 @@ export function SignUpForm({ next, disabled }: { next: string; disabled?: boolea
       <p className="text-center text-sm text-muted">
         Already have an account? <Link href={`/sign-in?next=${encodeURIComponent(next)}`} className="font-semibold text-signal">Sign in</Link>
       </p>
-      <p className="text-center text-xs text-faint">This creates a customer account for booking. Staff accounts are created by invitation from a facility administrator.</p>
+      <p className="text-center text-xs text-faint">Customer account. Staff access is by invitation only.</p>
     </form>
   );
 }

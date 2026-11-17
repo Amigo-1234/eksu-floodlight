@@ -6,6 +6,7 @@ import { AdminNav } from "@/components/admin/AdminNav";
 import { BackendNotice } from "@/components/site/SiteChrome";
 import { requireAdmin } from "@/lib/admin";
 import { Chip } from "@/components/ui";
+import { ThemeToggle } from "@/components/site/ThemeToggle";
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const ctx = await requireAdmin("/admin");
@@ -21,6 +22,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             <span className="hidden rounded-md border border-line-strong px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted sm:inline">Console</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
+            <ThemeToggle className="hidden sm:inline-flex" />
             <Chip tone="signal">{role}</Chip>
             <Link href="/" className="hidden items-center gap-1 rounded-xl px-3 py-2 font-bold text-muted transition-colors hover:text-ink sm:inline-flex">
               Public site<ArrowUpRight className="size-3.5" aria-hidden="true" />

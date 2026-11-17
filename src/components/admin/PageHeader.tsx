@@ -17,10 +17,10 @@ export function Stat({ label, value, hint, tone }: { label: string; value: React
   const color = tone === "warn" ? "text-warn" : tone === "danger" ? "text-danger" : tone === "ok" ? "text-ok" : "text-ink";
   const glow = tone === "warn" ? "bg-warn/20" : tone === "danger" ? "bg-danger/20" : tone === "ok" ? "bg-ok/15" : "bg-signal/10";
   return (
-    <div className="panel lift relative min-w-0 overflow-hidden p-4 sm:p-5">
+    <div className="panel relative min-w-0 overflow-hidden p-3.5 sm:p-4">
       <span className={`pointer-events-none absolute -right-8 -top-8 size-24 rounded-full blur-2xl ${glow}`} aria-hidden="true" />
       <p className="relative font-mono text-[10.5px] uppercase tracking-[0.14em] text-faint">{label}</p>
-      <p className={`font-display t-stat relative mt-2 tabular ${color}`}>{value}</p>
+      <p className={`font-display t-stat relative mt-1.5 tabular ${color}`}>{value}</p>
       {hint && <p className="relative mt-2 text-xs text-muted">{hint}</p>}
     </div>
   );

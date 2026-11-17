@@ -27,18 +27,18 @@ const STEPS = ["Date", "Time", "Details", "Review"] as const;
 
 function nextStepsText(policy: BookingPolicy): string[] {
   const out: string[] = [];
-  if (policy.approval_mode === "required") out.push("Facility staff review your request and approve or decline it.");
+  if (policy.approval_mode === "required") out.push("Staff review your request.");
   switch (policy.payment_mode) {
     case "free": out.push("No payment is required for this facility."); break;
     case "unconfigured":
-      out.push("This facility hasn't set its payment policy yet. Your request is saved and staff will confirm what happens next. It is not confirmed until they do.");
+      out.push("Nothing is charged now — the facility confirms how to pay.");
       break;
     case "offline": out.push("Payment is made at the facility and recorded by staff before your booking is confirmed."); break;
     case "online": case "hybrid": case "deposit":
       out.push("A payment is required before your booking is confirmed. You'll see the payment step in your booking."); break;
   }
   if (policy.approval_mode === "automatic" && policy.payment_mode === "free") out.push("Your booking is confirmed straight away.");
-  out.push("Your booking reference and receipt stay in My Bookings — you can come back to them any time.");
+  out.push("Your reference and receipt stay in My Bookings.");
   return out;
 }
 
@@ -67,6 +67,8 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
     },
   });
   const activityType = useWatch({ control: form.control, name: "activityType" });
+  const errs = form.formState.errors;
+  const optionalError = !!(errs.teamName || errs.opponentName || errs.purpose || errs.notes);
 
   const refresh = useCallback((d: string) => {
     setSlotError(null);
@@ -165,7 +167,7 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
             <label htmlFor="date-input">Or choose a date</label>
             <input id="date-input" type="date" min={today} max={days[days.length - 1]} value={day}
               onChange={(e) => e.target.value && setDay(e.target.value)}
-              className="h-11 min-w-0 rounded-xl border border-line-strong bg-[#090b0f] px-3 text-base text-ink" />
+              className="h-11 min-w-0 rounded-xl border border-line-strong bg-[var(--input-bg)] px-3 text-base text-ink" />
           </div>
           <div className="mt-5 flex">
             <Button size="lg" className="w-full sm:ml-auto sm:w-auto" onClick={() => { refresh(day); setStep(1); }}>See times for {formatDate(`${day}T12:00:00Z`, "UTC", "short")}</Button>
@@ -268,17 +270,6 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
             <Input id="activityTitle" placeholder={activityType === "competition" ? "e.g. Inter-Faculty Cup, quarter-final" : "e.g. Weekly training"}
               aria-invalid={!!form.formState.errors.activityTitle} {...form.register("activityTitle")} />
           </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field id="teamName" label="Your team (optional)" error={form.formState.errors.teamName?.message}>
-              <Input id="teamName" {...form.register("teamName")} />
-            </Field>
-            <Field id="opponentName" label="Opponent (optional)" error={form.formState.errors.opponentName?.message}>
-              <Input id="opponentName" {...form.register("opponentName")} />
-            </Field>
-          </div>
-          <Field id="purpose" label="Purpose (optional)" error={form.formState.errors.purpose?.message}>
-            <Input id="purpose" placeholder="What's the booking for?" {...form.register("purpose")} />
-          </Field>
 
           <fieldset className="panel flex min-w-0 flex-col gap-4 p-4 sm:p-5">
             <legend className="eyebrow px-1">Organiser</legend>
@@ -293,16 +284,33 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
                 <Input id="organizerEmail" type="email" autoComplete="email" aria-invalid={!!form.formState.errors.organizerEmail} {...form.register("organizerEmail")} />
               </Field>
             </div>
-            <p className="text-xs text-muted">Only you and the facility&apos;s staff can see contact details.</p>
+            <p className="text-xs text-muted">Only you and facility staff see these.</p>
           </fieldset>
 
-          <Field id="notes" label="Notes for the facility (optional)" error={form.formState.errors.notes?.message}>
-            <Textarea id="notes" rows={3} {...form.register("notes")} />
-          </Field>
-          <label className="panel flex cursor-pointer items-start gap-3 p-4 text-sm transition-colors hover:border-signal/40">
-            <input type="checkbox" className="mt-0.5 size-5 accent-[var(--signal)]" {...form.register("publicListing")} />
-            <span><strong>List on the public schedule</strong><br /><span className="text-muted">Shows the activity and team names (never contact details) once confirmed.</span></span>
-          </label>
+          {/* Optional extras stay folded away (opened automatically if one has an error). */}
+          <details className="panel group p-4" open={optionalError || undefined}>
+            <summary className="flex items-center justify-between text-sm font-bold">More details <span className="font-normal text-muted">(optional)</span><span className="ml-auto text-lg leading-none text-signal transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span></summary>
+            <div className="details-body mt-4 flex flex-col gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                    <Field id="teamName" label="Your team (optional)" error={form.formState.errors.teamName?.message}>
+                      <Input id="teamName" {...form.register("teamName")} />
+                    </Field>
+                    <Field id="opponentName" label="Opponent (optional)" error={form.formState.errors.opponentName?.message}>
+                      <Input id="opponentName" {...form.register("opponentName")} />
+                    </Field>
+                  </div>
+                  <Field id="purpose" label="Purpose (optional)" error={form.formState.errors.purpose?.message}>
+                    <Input id="purpose" placeholder="What's the booking for?" {...form.register("purpose")} />
+                  </Field>
+              <Field id="notes" label="Notes for the facility" error={form.formState.errors.notes?.message}>
+                <Textarea id="notes" rows={3} {...form.register("notes")} />
+              </Field>
+              <label className="flex cursor-pointer items-start gap-3 text-sm">
+                <input type="checkbox" className="mt-0.5 size-5 accent-[var(--signal)]" {...form.register("publicListing")} />
+                <span><strong>Show on the public schedule</strong><br /><span className="text-muted">Activity and team names only, once confirmed.</span></span>
+              </label>
+            </div>
+          </details>
 
           <div className="flex items-center justify-between gap-3">
             <Button type="button" variant="ghost" onClick={() => setStep(1)}><ChevronLeft className="size-4" aria-hidden="true" />Time</Button>
@@ -348,12 +356,12 @@ export function BookingFlow({ facility, policy, surfaces, price, today, profile,
             </dl>
           </Card>
 
-          <Card className="p-4">
-            <p className="mb-2 text-sm font-semibold">What happens next</p>
-            <ul className="flex flex-col gap-1.5 text-sm text-muted">
-              {nextStepsText(policy).map((t) => <li key={t} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-signal" aria-hidden="true" />{t}</li>)}
+          <details className="panel group p-4 text-sm">
+            <summary className="flex items-center gap-2 font-bold"><Check className="size-4 shrink-0 text-signal" aria-hidden="true" />{nextStepsText(policy)[0]}<span className="ml-auto text-lg leading-none text-signal transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span></summary>
+            <ul className="details-body mt-2 flex flex-col gap-1.5 text-muted">
+              {nextStepsText(policy).slice(1).map((t) => <li key={t} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-signal" aria-hidden="true" />{t}</li>)}
             </ul>
-          </Card>
+          </details>
           {facility.rules && (
             <details className="panel group p-4 text-sm">
               <summary className="flex items-center justify-between font-bold">Facility rules<span className="text-signal transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span></summary>

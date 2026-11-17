@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
 import { CalendarDays, LayoutGrid, Menu, ScanLine, ShieldCheck, Ticket, UserRound, X } from "lucide-react";
 import { buttonClass, cx } from "@/components/ui";
+import { ThemeToggle } from "@/components/site/ThemeToggle";
 
 type Props = { signedIn: boolean; firstName: string | null; admin: boolean; gate: boolean };
 
@@ -49,6 +50,7 @@ export function HeaderNav({ signedIn, firstName, admin, gate }: Props) {
           </Link>
         ))}
         <span className="mx-2 h-6 w-px bg-line" aria-hidden="true" />
+        <ThemeToggle className="mr-2" />
         {signedIn ? (
           <Link href="/dashboard" className={buttonClass("outline", "sm")}>
             <UserRound className="size-4" aria-hidden="true" />{firstName ?? "My bookings"}
@@ -62,7 +64,7 @@ export function HeaderNav({ signedIn, firstName, admin, gate }: Props) {
       <div className="flex items-center gap-2 md:hidden">
         <Link href="/facilities" className={buttonClass("signal", "sm")}>Book</Link>
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="mobile-menu"
-          className="inline-flex size-10 items-center justify-center rounded-xl border border-line-strong bg-white/[0.03] text-ink transition-colors hover:border-signal/50">
+          className="inline-flex size-10 items-center justify-center rounded-xl border border-line-strong bg-ink/[0.03] text-ink transition-colors hover:border-signal/50">
           {open ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
           <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
         </button>
@@ -70,8 +72,8 @@ export function HeaderNav({ signedIn, firstName, admin, gate }: Props) {
 
       {open && (
         <div id="mobile-menu" className="absolute inset-x-0 top-full z-40 h-[calc(100dvh-var(--header-h))] md:hidden">
-          <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-[page-in_200ms_ease-out_both]" />
-          <div className="glass relative mx-3 mt-2 max-h-[calc(100dvh-var(--header-h)-1rem)] overflow-y-auto overscroll-contain rounded-3xl border border-line-strong p-3 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.9)] animate-rise">
+          <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="absolute inset-0 bg-[var(--overlay)] backdrop-blur-sm animate-[page-in_200ms_ease-out_both]" />
+          <div className="glass relative mx-3 mt-2 max-h-[calc(100dvh-var(--header-h)-1rem)] overflow-y-auto overscroll-contain rounded-3xl border border-line-strong p-3 shadow-[0_30px_80px_-20px_rgb(var(--shadow-rgb)/0.45)] animate-rise">
             <ul className="stagger flex flex-col gap-1">
               {[...LINKS, ...staff, signedIn
                 ? { href: "/dashboard", label: "My bookings", icon: UserRound }
@@ -79,7 +81,7 @@ export function HeaderNav({ signedIn, firstName, admin, gate }: Props) {
                 <li key={href} style={{ "--i": i } as CSSProperties}>
                   <Link href={href} aria-current={active(href) ? "page" : undefined}
                     className={cx("flex h-14 items-center gap-3 rounded-2xl px-4 text-[17px] font-bold transition-colors",
-                      active(href) ? "bg-signal/[0.12] text-signal" : "text-ink hover:bg-white/[0.04]")}>
+                      active(href) ? "bg-signal/[0.12] text-signal" : "text-ink hover:bg-ink/[0.04]")}>
                     <Icon className="size-5" aria-hidden="true" />{label}
                   </Link>
                 </li>
@@ -88,6 +90,10 @@ export function HeaderNav({ signedIn, firstName, admin, gate }: Props) {
             {!signedIn && (
               <Link href="/sign-up" className={buttonClass("signal", "lg", "mt-3 w-full")}>Create a free account</Link>
             )}
+            <div className="mt-3 flex items-center justify-between gap-3 border-t border-line px-1 pt-3">
+              <span className="text-sm font-bold text-muted">Theme</span>
+              <ThemeToggle showLabels className="w-full max-w-64" />
+            </div>
           </div>
         </div>
       )}

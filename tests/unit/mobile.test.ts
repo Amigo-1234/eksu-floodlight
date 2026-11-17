@@ -80,3 +80,33 @@ test("duplicate sign-up (obfuscated user with no identities) is detected", () =>
   assert.equal(isExistingAccountResponse(null), false);
   assert.equal(isExistingAccountResponse({}), false);
 });
+
+import { resolveTheme, THEME_BOOT_SCRIPT, THEME_KEY } from "../../src/lib/theme.ts";
+
+test("theme preference resolves light / dark / system", () => {
+  assert.equal(resolveTheme("light", false), "light");
+  assert.equal(resolveTheme("dark", true), "dark");
+  assert.equal(resolveTheme("system", true), "light");
+  assert.equal(resolveTheme(null, false), "dark");
+  assert.equal(resolveTheme("garbage", true), "light");
+});
+
+test("theme boot script applies the stored theme before paint", () => {
+  const attrs: Record<string, string> = {};
+  const g = globalThis as Record<string, unknown>;
+  const saved = { document: g.document, localStorage: g.localStorage, matchMedia: g.matchMedia };
+  g.document = { documentElement: { setAttribute: (k: string, v: string) => { attrs[k] = v; } } };
+  g.localStorage = { getItem: (k: string) => (k === THEME_KEY ? "light" : null) };
+  g.matchMedia = () => ({ matches: false });
+  try {
+    new Function(THEME_BOOT_SCRIPT)();
+    assert.equal(attrs["data-theme"], "light");
+    assert.equal(attrs["data-theme-pref"], "light");
+    g.localStorage = { getItem: () => { throw new Error("blocked"); } };
+    new Function(THEME_BOOT_SCRIPT)();
+    assert.equal(attrs["data-theme"], "dark", "storage blocked → system (dark here), no crash");
+    assert.equal(attrs["data-theme-pref"], "system");
+  } finally {
+    Object.assign(g, saved);
+  }
+});

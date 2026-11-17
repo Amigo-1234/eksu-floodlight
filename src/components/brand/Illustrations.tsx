@@ -11,7 +11,10 @@ type P = { className?: string };
 const AMBER = "#ffc53d";
 const AMBER_2 = "#ff9f1c";
 const ICE = "#6ae4ff";
-const INK = "#f5f3ee";
+// Ink follows the theme via currentColor (set from --art-ink on each <svg>);
+// panels use --art-panel-*. Inline styles keep this working in every engine.
+const INK = "currentColor";
+const ART: CSSProperties = { color: "var(--art-ink)" };
 
 function Defs({ id }: { id: string }) {
   return (
@@ -29,8 +32,8 @@ function Defs({ id }: { id: string }) {
         <stop offset="1" stopColor={ICE} stopOpacity="0" />
       </radialGradient>
       <linearGradient id={`${id}-panel`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#1b1f2a" />
-        <stop offset="1" stopColor="#0c0e13" />
+        <stop offset="0" style={{ stopColor: "var(--art-panel-a)" }} />
+        <stop offset="1" style={{ stopColor: "var(--art-panel-b)" }} />
       </linearGradient>
     </defs>
   );
@@ -118,7 +121,7 @@ export function HeroScene({ className = "" }: P) {
 /** Generic empty state: a quiet pitch with a training cone and corner flag. */
 export function ArtEmpty({ className = "" }: P) {
   return (
-    <svg viewBox="0 0 200 130" className={className} aria-hidden="true">
+    <svg style={ART} viewBox="0 0 200 130" className={className} aria-hidden="true">
       <Defs id="ae" />
       <ellipse cx="100" cy="70" rx="90" ry="55" fill="url(#ae-halo)" />
       <rect x="22" y="38" width="156" height="78" rx="12" fill="url(#ae-panel)" stroke={INK} strokeOpacity="0.12" />
@@ -138,7 +141,7 @@ export function ArtEmpty({ className = "" }: P) {
 /** No bookings yet: a blank ticket with a smiling ball. */
 export function ArtTicket({ className = "" }: P) {
   return (
-    <svg viewBox="0 0 200 130" className={className} aria-hidden="true">
+    <svg style={ART} viewBox="0 0 200 130" className={className} aria-hidden="true">
       <Defs id="at" />
       <ellipse cx="100" cy="66" rx="88" ry="54" fill="url(#at-halo)" />
       <g transform="rotate(-6 100 66)">
@@ -161,7 +164,7 @@ export function ArtTicket({ className = "" }: P) {
 /** No results: magnifier over a ball. */
 export function ArtSearch({ className = "" }: P) {
   return (
-    <svg viewBox="0 0 200 130" className={className} aria-hidden="true">
+    <svg style={ART} viewBox="0 0 200 130" className={className} aria-hidden="true">
       <Defs id="as" />
       <ellipse cx="100" cy="66" rx="80" ry="52" fill="url(#as-ice)" />
       <circle cx="92" cy="60" r="30" fill="url(#as-panel)" stroke={INK} strokeOpacity="0.4" strokeWidth="3" />
@@ -177,7 +180,7 @@ export function ArtSearch({ className = "" }: P) {
 /** Admin empty: a clipboard with a rising bar chart. */
 export function ArtClipboard({ className = "" }: P) {
   return (
-    <svg viewBox="0 0 200 130" className={className} aria-hidden="true">
+    <svg style={ART} viewBox="0 0 200 130" className={className} aria-hidden="true">
       <Defs id="ac" />
       <ellipse cx="100" cy="66" rx="86" ry="54" fill="url(#ac-halo)" />
       <rect x="62" y="20" width="76" height="98" rx="10" fill="url(#ac-panel)" stroke={INK} strokeOpacity="0.2" />
@@ -198,7 +201,7 @@ export function ArtClipboard({ className = "" }: P) {
 /** Auth art: a floodlight head pouring light onto a ball and a whistle. */
 export function ArtLamp({ className = "" }: P) {
   return (
-    <svg viewBox="0 0 320 320" className={className} aria-hidden="true">
+    <svg style={ART} viewBox="0 0 320 320" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="al-beam" x1="0.2" y1="0" x2="0.6" y2="1">
           <stop offset="0" stopColor="#ffe08a" stopOpacity="0.75" />
@@ -214,7 +217,7 @@ export function ArtLamp({ className = "" }: P) {
       <ellipse cx="190" cy="280" rx="120" ry="26" fill="url(#al-floor)" />
       <g transform="rotate(-20 110 80)">
         <rect x="60" y="56" width="104" height="52" rx="14" fill={AMBER} filter="url(#al-blur)" opacity="0.8" />
-        <rect x="60" y="56" width="104" height="52" rx="14" fill="#1b1f2a" stroke={AMBER} strokeOpacity="0.6" strokeWidth="2" />
+        <rect x="60" y="56" width="104" height="52" rx="14" style={{ fill: "var(--art-panel-a)" }} stroke={AMBER} strokeOpacity="0.6" strokeWidth="2" />
         {[0, 1, 2].map((c) => [0, 1].map((r) => (
           <circle key={`${c}${r}`} cx={86 + c * 26} cy={72 + r * 20} r="8" fill={r === 0 && c === 1 ? "#fff8e0" : AMBER} />
         )))}
@@ -234,7 +237,7 @@ export function ArtLamp({ className = "" }: P) {
 /** 404: the ball rolled out of play. */
 export function ArtLost({ className = "" }: P) {
   return (
-    <svg viewBox="0 0 240 150" className={className} aria-hidden="true">
+    <svg style={ART} viewBox="0 0 240 150" className={className} aria-hidden="true">
       <Defs id="ao" />
       <ellipse cx="120" cy="80" rx="110" ry="62" fill="url(#ao-halo)" />
       <g fill="none" stroke={INK} strokeOpacity="0.35" strokeWidth="2">
@@ -258,7 +261,7 @@ export function ArtLost({ className = "" }: P) {
 export function ArtSuccess({ className = "" }: P) {
   const bits = [[40, 20, AMBER], [70, 10, ICE], [130, 14, AMBER], [160, 24, "#3ee08f"], [100, 6, INK], [180, 10, AMBER_2], [20, 34, ICE]] as const;
   return (
-    <svg viewBox="0 0 200 140" className={className} aria-hidden="true">
+    <svg style={ART} viewBox="0 0 200 140" className={className} aria-hidden="true">
       <Defs id="su" />
       <ellipse cx="100" cy="80" rx="90" ry="56" fill="url(#su-halo)" />
       <g className="confetti">
@@ -279,7 +282,7 @@ export function ArtSuccess({ className = "" }: P) {
 export function ArtVerdict({ ok, className = "" }: P & { ok: boolean }) {
   const c = ok ? "#3ee08f" : "#ff5c72";
   return (
-    <svg viewBox="0 0 120 120" className={className} aria-hidden="true">
+    <svg style={ART} viewBox="0 0 120 120" className={className} aria-hidden="true">
       <circle cx="60" cy="60" r="44" fill={c} opacity="0.12" />
       <circle cx="60" cy="60" r="44" fill="none" stroke={c} strokeWidth="3" className="ring-out" />
       <circle cx="60" cy="60" r="34" fill={c} className="pop-in" />

@@ -64,7 +64,7 @@ export function FacilityDetailsForm({ f, categories }: { f: Facility; categories
   const nn = (s: string) => (s.trim() === "" ? null : s);
   return (
     <Card className="p-4">
-      <h2 className="font-display mb-3 text-xl">Details</h2>
+      <h2 className="sr-only">Details</h2>
       {banner}
       <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => {
         e.preventDefault();
@@ -97,7 +97,7 @@ export function SurfacesForm({ facilityId, surfaces }: { facilityId: string; sur
   const [name, setName] = useState("");
   return (
     <Card className="p-4">
-      <h2 className="font-display mb-1 text-xl">Playing areas</h2>
+      <h2 className="sr-only">Playing areas</h2>
       <p className="mb-3 text-sm text-muted">Each area is booked independently (e.g. two courts at one facility).</p>
       {banner}
       <ul className="mb-3 flex flex-col gap-2">
@@ -129,7 +129,7 @@ export function HoursForm({ facilityId, hours }: { facilityId: string; hours: Op
   const update = (i: number, patch: Partial<HourRow>) => setRows(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
   return (
     <Card className="p-4">
-      <h2 className="font-display mb-1 text-xl">Opening hours</h2>
+      <h2 className="sr-only">Opening hours</h2>
       <p className="mb-3 text-sm text-muted">Facility local time. Add several ranges for a day if it closes in between. Days without a range are closed.</p>
       {banner}
       <ul className="flex flex-col gap-2">
@@ -170,7 +170,7 @@ export function PolicyForm({ facilityId, policy }: { facilityId: string; policy:
   );
   return (
     <Card className="p-4">
-      <h2 className="font-display mb-1 text-xl">Booking policy</h2>
+      <h2 className="sr-only">Booking policy</h2>
       <p className="mb-3 text-sm text-muted">Values left empty stay “not set” — the platform never fills in a default for you. Every change is recorded in the audit log.</p>
       {banner}
       <form className="grid gap-3 sm:grid-cols-2" onSubmit={(e) => {
@@ -231,7 +231,7 @@ export function PricesForm({ facilityId, prices }: { facilityId: string; prices:
   const [v, setV] = useState({ label: "", amount: "", deposit: "", isDefault: prices.length === 0 });
   return (
     <Card className="p-4">
-      <h2 className="font-display mb-1 text-xl">Prices</h2>
+      <h2 className="sr-only">Prices</h2>
       <p className="mb-3 text-sm text-muted">Enter only prices approved by the facility. No price is assumed.</p>
       {banner}
       <ul className="mb-3 flex flex-col gap-2 text-sm">
@@ -261,7 +261,7 @@ export function ImageUploadForm({ facilityId, images }: { facilityId: string; im
   const { pending, run, banner } = useAction();
   return (
     <Card className="p-4">
-      <h2 className="font-display mb-1 text-xl">Photos</h2>
+      <h2 className="sr-only">Photos</h2>
       <p className="mb-3 text-sm text-muted">Use only photos you have permission to publish. JPG, PNG or WebP, up to 5 MB.</p>
       {banner}
       {images.length > 0 && (

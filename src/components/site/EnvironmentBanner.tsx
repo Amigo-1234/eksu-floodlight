@@ -12,7 +12,7 @@ export function isTestEnvironment(): boolean {
 export function EnvironmentBanner() {
   if (!isTestEnvironment()) return null;
   return (
-    <div role="note" className="no-print relative z-40 border-b border-warn/25 bg-[#120c03] px-3 py-1 text-center font-mono text-[10.5px] uppercase tracking-[0.16em] text-warn">
+    <div role="note" className="no-print relative z-40 border-b border-warn/25 bg-[var(--banner-bg)] px-3 py-1 text-center font-mono text-[10.5px] uppercase tracking-[0.16em] text-warn">
       Staging copy · bookings here don&apos;t reserve real facilities
     </div>
   );

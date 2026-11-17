@@ -27,7 +27,7 @@
   --line-strong: #323849;
   --ink: #f5f3ee;
   --muted: #a3a9b9;        /* 8.6:1 on --bg */
-  --faint: #6c7387;        /* decorative only */
+  --faint: #7c8397;        /* 4.6:1 on --raised */
   --signal: #ffc53d;       /* floodlight amber */
   --signal-2: #ff9f1c;     /* deeper amber for gradients */
   --signal-ink: #170f00;
@@ -39,6 +39,29 @@
   --info: #6ae4ff;
   --ring: #ffc53d;
   --radius-card: 22px;
+
+  /* Semantic tokens that differ between themes (dark values here). */
+  --signal-text: var(--signal);          /* amber used as TEXT on --bg/--surface */
+  --tint: 255 255 255;                   /* hover/active wash (rgb triplet) */
+  --shadow-rgb: 0 0 0;
+  --input-bg: #090b0f;
+  --input-shadow: inset 0 2px 6px rgb(0 0 0 / 0.35);
+  --glass-a: rgb(13 15 20 / 0.84);
+  --glass-b: rgb(5 6 8 / 0.92);
+  --card-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 24px 60px -40px rgb(0 0 0 / 0.9);
+  --grid-line: rgb(245 243 238 / 0.045);
+  --sky-top: #07080c;
+  --sky-key: rgb(255 197 61 / 0.18);
+  --sky-rim: rgb(106 228 255 / 0.10);
+  --page-glow: rgb(255 197 61 / 0.07);
+  --shimmer-hi: #1f2430;
+  --beam-from: #fff4d1;
+  --banner-bg: #120c03;
+  --overlay: rgb(0 0 0 / 0.6);
+  --art-ink: #f5f3ee;
+  --art-panel-a: #1b1f2a;
+  --art-panel-b: #0c0e13;
+  color-scheme: dark;
 
   /* Layout tokens. --nav-h is the tab bar's row height; the bar adds the
      device's bottom safe area (home indicator) on top of it. */
@@ -58,8 +81,61 @@
 }
 @media (min-width: 640px) { :root { --header-h: 4rem; --gutter: 1.5rem; } }
 
-/* Staff consoles share the night system (no light theme). Kept as a hook. */
-.theme-day { }
+/*
+ * LIGHT — "Day Session". Warm off-white paper, soft stone surfaces, ink-dark
+ * type. Amber stays bright for fills (buttons, selected slots) and a deeper
+ * amber (--signal-text) carries amber TEXT at ≥4.5:1. Status colours are
+ * darkened to stay AA on light surfaces.
+ */
+:root[data-theme="light"] {
+  --bg: #f6f3ec;
+  --bg-2: #efebe2;
+  --surface: #fffdf8;
+  --raised: #f1ede4;
+  --line: #e4ddcf;
+  --line-strong: #d3cab8;
+  --ink: #1a1712;          /* 15:1 on --bg */
+  --muted: #5b5548;        /* 6.9:1 on --bg */
+  --faint: #6f6858;      /* 4.9:1 on --bg */
+  --signal: #ffbd2e;
+  --signal-2: #f59a0b;
+  --signal-ink: #1f1500;
+  --signal-text: #8f5600;  /* 5.3:1 on --bg */
+  --glow: #0a7898;
+  --pitch: #138a55;
+  --ok: #10794a;
+  --warn: #a8550a;
+  --danger: #c4203b;
+  --info: #0a6f8c;
+  --ring: #c27800;
+  --tint: 26 23 18;
+  --shadow-rgb: 74 58 30;
+  --input-bg: #fffefb;
+  --input-shadow: inset 0 1px 2px rgb(74 58 30 / 0.06);
+  --glass-a: rgb(255 253 248 / 0.86);
+  --glass-b: rgb(246 243 236 / 0.92);
+  --card-shadow: 0 1px 2px rgb(74 58 30 / 0.05), 0 12px 32px -22px rgb(74 58 30 / 0.28);
+  --grid-line: rgb(26 23 18 / 0.05);
+  --sky-top: #fbf6ea;
+  --sky-key: rgb(255 189 46 / 0.22);
+  --sky-rim: rgb(10 120 152 / 0.06);
+  --page-glow: rgb(255 189 46 / 0.12);
+  --shimmer-hi: #e9e3d6;
+  --beam-from: #c27800;
+  --banner-bg: #fff3dc;
+  --overlay: rgb(26 23 18 / 0.35);
+  --art-ink: #3b3428;
+  --art-panel-a: #fffdf8;
+  --art-panel-b: #efe8da;
+  color-scheme: light;
+}
+/* Amber as text needs the deeper shade on light surfaces (fills stay bright). */
+:root[data-theme="light"] .text-signal,
+:root[data-theme="light"] .eyebrow { color: var(--signal-text); }
+:root[data-theme="light"] .bg-signal-ink.text-signal,
+:root[data-theme="light"] .bg-signal .text-signal-ink { color: var(--signal); }
+:root[data-theme="light"] .text-beam { background-image: linear-gradient(100deg, #b86e00 0%, #d98a00 50%, #c25e00 100%); }
+
 
 @theme inline {
   --color-bg: var(--bg);
@@ -87,7 +163,6 @@
 }
 
 html {
-  color-scheme: dark;
   background: var(--bg);
   min-height: 100%;
   -webkit-text-size-adjust: 100%;
@@ -106,7 +181,7 @@ body { min-height: 100dvh; }
 body {
   /* No background-attachment: fixed — iOS ignores it and repaints on scroll. */
   background:
-    radial-gradient(1200px 520px at 50% -260px, rgb(255 197 61 / 0.07), transparent 70%) no-repeat,
+    radial-gradient(1200px 520px at 50% -260px, var(--page-glow), transparent 70%) no-repeat,
     var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
@@ -140,11 +215,11 @@ p, dd, h1, h2, h3 { overflow-wrap: anywhere; }
   bottom: 0;
   z-index: 30;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: linear-gradient(180deg, rgb(13 15 20 / 0.86), rgb(5 6 8 / 0.94));
+  background: linear-gradient(180deg, var(--glass-a), var(--glass-b));
   backdrop-filter: saturate(140%) blur(16px);
   -webkit-backdrop-filter: saturate(140%) blur(16px);
   border-top: 1px solid var(--line);
-  box-shadow: 0 -18px 40px -24px rgb(0 0 0 / 0.9);
+  box-shadow: 0 -18px 40px -24px rgb(var(--shadow-rgb) / 0.5);
   transform: translate3d(0, 0, 0);
   transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 200ms ease;
   will-change: transform;
@@ -161,6 +236,9 @@ html[data-gate-focus] .gate-nav {
 /* Space reserved under page content wherever a bottom bar exists, so the bar
    can never cover the last card, button or QR code. */
 @utility pb-nav { padding-bottom: calc(var(--nav-total) + 1.5rem); }
+
+/* Switching theme fades colours briefly (set by the theme switcher only). */
+html.theme-switching, html.theme-switching * { transition: background-color 220ms ease, border-color 220ms ease, color 220ms ease, fill 220ms ease !important; }
 
 ::selection { background: rgb(255 197 61 / 0.35); color: var(--ink); }
 
@@ -197,33 +275,33 @@ html[data-gate-focus] .gate-nav {
 /* Night sky: warm key light top-left, cold rim light top-right. */
 .floodlight-sky {
   background:
-    radial-gradient(70% 60% at 8% -18%, rgb(255 197 61 / 0.18), transparent 62%),
-    radial-gradient(55% 50% at 100% -10%, rgb(106 228 255 / 0.10), transparent 65%),
-    linear-gradient(180deg, #07080c 0%, var(--bg) 70%);
+    radial-gradient(70% 60% at 8% -18%, var(--sky-key), transparent 62%),
+    radial-gradient(55% 50% at 100% -10%, var(--sky-rim), transparent 65%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--bg) 70%);
 }
 
 /* Faint pitch grid that fades out from the centre. */
 .pitch-lines {
   background-image:
-    linear-gradient(to right, rgb(245 243 238 / 0.045) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(245 243 238 / 0.045) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: radial-gradient(75% 65% at 50% 25%, black, transparent);
 }
 
 /* Glass bars (header, bottom navs). */
 .glass {
-  background: linear-gradient(180deg, rgb(13 15 20 / 0.82), rgb(5 6 8 / 0.78));
+  background: linear-gradient(180deg, var(--glass-a), var(--glass-b));
   backdrop-filter: saturate(140%) blur(16px);
   -webkit-backdrop-filter: saturate(140%) blur(16px);
 }
 
 /* Panel with a soft top highlight — the base of every card. */
 .panel {
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.025), rgb(255 255 255 / 0) 40%), var(--surface);
+  background: linear-gradient(180deg, rgb(var(--tint) / 0.02), rgb(var(--tint) / 0) 40%), var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 24px 60px -40px rgb(0 0 0 / 0.9);
+  box-shadow: var(--card-shadow);
 }
 
 /* Amber edge glow for featured panels. */
@@ -231,7 +309,7 @@ html[data-gate-focus] .gate-nav {
   box-shadow:
     0 0 0 1px rgb(255 197 61 / 0.35),
     0 18px 60px -24px rgb(255 197 61 / 0.35),
-    inset 0 1px 0 rgb(255 255 255 / 0.06);
+    inset 0 1px 0 rgb(var(--tint) / 0.06);
 }
 
 /* Hover lift for interactive cards. */
@@ -240,13 +318,13 @@ html[data-gate-focus] .gate-nav {
   .lift:hover {
     transform: translateY(-3px);
     border-color: rgb(255 197 61 / 0.45);
-    box-shadow: 0 22px 50px -30px rgb(255 197 61 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.05);
+    box-shadow: 0 22px 50px -30px rgb(255 197 61 / 0.45), inset 0 1px 0 rgb(var(--tint) / 0.05);
   }
 }
 
 /* Gradient text for the key word in headlines. */
 .text-beam {
-  background: linear-gradient(100deg, #fff4d1 0%, var(--signal) 45%, var(--signal-2) 100%);
+  background: linear-gradient(100deg, var(--beam-from) 0%, var(--signal) 45%, var(--signal-2) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -278,7 +356,7 @@ html[data-gate-focus] .gate-nav {
 }
 .data-table td { padding: 12px; border-bottom: 1px solid var(--line); }
 .data-table tbody tr { transition: background-color 150ms; }
-.data-table tbody tr:hover { background: rgb(255 255 255 / 0.02); }
+.data-table tbody tr:hover { background: rgb(var(--tint) / 0.03); }
 .data-table tbody tr:last-child td { border-bottom: 0; }
 
 /* ---------------------------------------------------------------- motion */
@@ -320,7 +398,7 @@ html[data-gate-focus] .gate-nav {
 
 @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
 .shimmer {
-  background: linear-gradient(90deg, var(--raised) 0%, #1f2430 40%, var(--raised) 80%);
+  background: linear-gradient(90deg, var(--raised) 0%, var(--shimmer-hi) 40%, var(--raised) 80%);
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }

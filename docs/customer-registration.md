@@ -1,16 +1,41 @@
 # Customer registration — enablement runbook
 
-Floodlight's sign-up, email verification, sign-in, forgot/reset password and
-sign-out flows are implemented and unit-tested. **Public sign-ups are still
-switched off in the shared Supabase Auth project** (`lkvdoeomyhbtinpvvbfr`,
-shared with EKSU Sports Hub), so `/sign-up` currently shows "New accounts open
-soon" (the page reads GoTrue's public `/auth/v1/settings` every 5 minutes and
-turns the form on by itself once sign-ups are allowed).
+Floodlight's sign-up, sign-in, sign-out, profile and session handling are
+implemented for **both** Auth modes, and the pages read the shared project's
+live settings (GoTrue `/auth/v1/settings`, cached 5 minutes):
 
-Status checked on 2026-11-16 (live auth logs): a sign-up from
-`eksu-floodlight.vercel.app` was rejected with `422 signup_disabled`.
+| Shared Auth setting | What `/sign-up` does |
+| --- | --- |
+| Sign-ups off | "Registration isn't switched on yet" + disabled form |
+| Sign-ups on, **Confirm email OFF** (approved for now) | creates the account, signs the user in immediately, ensures their Floodlight profile, redirects to `/dashboard?welcome=1` ("Welcome to Floodlight!") — no "check your email" screen |
+| Sign-ups on, Confirm email ON (later, with SMTP) | "Check your email" + resend, then `/auth/callback` → dashboard |
 
-## Why it is not simply switched on
+## Owner action required now (Supabase Dashboard, project `lkvdoeomyhbtinpvvbfr`)
+
+These are project-wide switches that this session could not change (no
+Management API access from the build environment):
+
+1. **Authentication → Sign In / Providers → Email**: keep *Email provider* ON, turn **Confirm email OFF**.
+2. **Authentication → Sign In / Providers**: turn **Allow new users to sign up ON**.
+3. Within 5 minutes `/sign-up` switches to the live form (no redeploy needed).
+
+With *Confirm email* off, GoTrue auto-confirms new users (it sets
+`auth.users.email_confirmed_at` at sign-up). Floodlight's booking guard
+(`0009_customer_safeguards`, `EMAIL_NOT_VERIFIED`) therefore stays in place
+unchanged and simply passes for these users; nothing in the database was
+weakened. Booking itself remains limited by the existing launch controls
+(pre-launch test mode, approved testers only, staff approval, no online
+payments, gate admission in test mode).
+
+### What still needs email (SMTP) later
+
+* **Password reset** — `/forgot-password` warns that reset emails may not arrive
+  until `EMAIL_DELIVERY_READY=true` is set on Vercel (do that after SMTP works).
+* **Staff invitations** — already delivered as a copyable single-use link in
+  Admin → Staff; no email needed.
+* **Email verification** — turn *Confirm email* back on once SMTP is live.
+
+## Background: why the switches are shared
 
 1. **"Allow new users to sign up" is project-wide.** Turning it on also lets
    anyone create an account against EKSU Sports Hub's auth. Hiding a button in

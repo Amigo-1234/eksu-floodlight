@@ -29,12 +29,11 @@ export default async function FacilitiesPage(props: PageProps<"/facilities">) {
     <div>
       <section className="floodlight-sky relative overflow-hidden border-b border-line">
         <div className="pitch-lines pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-12">
-          <p className="eyebrow flex items-center gap-2"><span className="h-px w-6 bg-signal/70" aria-hidden="true" />EKSU sports facilities</p>
-          <h1 className="font-display t-display mt-2">Find your field</h1>
-          <p className="mt-3 max-w-xl text-muted">Pick a facility to see its rules, opening hours and live availability.</p>
+        <div className="relative mx-auto max-w-6xl px-4 pb-6 pt-7 sm:pb-8 sm:pt-10">
+          <h1 className="font-display t-page">Facilities</h1>
+          <p className="mt-2 text-muted">Find your field and pick a time.</p>
           {present.size > 1 && (
-            <nav aria-label="Filter by sport" className="-mx-4 mt-7 flex gap-2 overflow-x-auto px-4 pb-1">
+            <nav aria-label="Filter by sport" className="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1">
               <PillLink href="/facilities" active={!sportFilter}>All sports</PillLink>
               {categories.filter((c) => present.has(c.slug)).map((c) => (
                 <PillLink key={c.id} href={`/facilities?sport=${c.slug}`} active={sportFilter === c.slug}>{c.name}</PillLink>
@@ -46,9 +45,7 @@ export default async function FacilitiesPage(props: PageProps<"/facilities">) {
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
         {!failed && shown.length > 0 && !access.public_open && (
-          <Notice tone="info" title="Online reservations open soon" className="mb-6">
-            Facilities and live availability are visible now; booking opens to everyone at launch.
-          </Notice>
+          <Notice tone="info" className="mb-5">Booking opens to everyone soon — live availability is already here.</Notice>
         )}
         {failed ? (
           <EmptyState title="Couldn't load facilities" body="Please refresh the page in a moment." />
@@ -58,10 +55,10 @@ export default async function FacilitiesPage(props: PageProps<"/facilities">) {
               body="No facility for this sport is open for booking right now." action={<ButtonLink href="/facilities" variant="outline">Show all sports</ButtonLink>} />
           ) : (
             <EmptyState art={<ArtEmpty className="h-32 w-auto" />} title="The lights are being set up"
-              body="Facilities appear here as soon as their managers open them for booking. Check back soon." />
+              body="Check back soon." />
           )
         ) : (
-          <div className="stagger grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {shown.map((f, i) => <div key={f.id} style={stagger(i)}><FacilityCard f={f} /></div>)}
           </div>
         )}

@@ -56,24 +56,31 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
         actions={<Suspense><FacilitySwitcher facilities={ctx.facilities} /></Suspense>} />
       {ov.error && <Notice tone="danger" className="mb-4">Couldn&apos;t load metrics.</Notice>}
       {o && (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Stat label="Bookings today" value={o.today} />
-          <Stat label="Free slots left today" value={o.available_slots_today} />
+        <>
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
           <Stat label="Awaiting approval" value={o.pending_approval} tone={o.pending_approval ? "warn" : undefined} />
-          <Stat label="Awaiting payment / decision" value={o.pending_payment} tone={o.pending_payment ? "warn" : undefined} />
-          <Stat label="Confirmed upcoming" value={o.confirmed_upcoming} />
+          <Stat label="Bookings today" value={o.today} />
+          <Stat label="Free slots today" value={o.available_slots_today} />
           <Stat label="Check-ins today" value={o.check_ins_today} hint={o.manual_check_ins_7d ? `${o.manual_check_ins_7d} manual in 7 days` : undefined} />
-          <Stat label="Cancelled (30 days)" value={o.cancelled_30d} />
-          {o.payments_recorded > 0
-            ? <Stat label="Payments (30 days)" value={formatNaira(o.revenue_kobo_30d ?? 0)} hint={`${o.payments_recorded} recorded payments`} />
-            : <Stat label="All bookings" value={o.total} />}
         </div>
+        <details className="group mt-2">
+          <summary className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-muted hover:text-ink">More numbers<span className="text-signal transition-transform duration-200 group-open:rotate-45" aria-hidden="true">+</span></summary>
+          <div className="details-body mt-2 grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
+            <Stat label="Awaiting payment / decision" value={o.pending_payment} tone={o.pending_payment ? "warn" : undefined} />
+            <Stat label="Confirmed upcoming" value={o.confirmed_upcoming} />
+            <Stat label="Cancelled (30 days)" value={o.cancelled_30d} />
+            {o.payments_recorded > 0
+              ? <Stat label="Payments (30 days)" value={formatNaira(o.revenue_kobo_30d ?? 0)} hint={`${o.payments_recorded} recorded payments`} />
+              : <Stat label="All bookings" value={o.total} />}
+          </div>
+        </details>
+        </>
       )}
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-2">
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <section aria-labelledby="queue-h">
           <div className="mb-3 flex items-center justify-between">
-            <h2 id="queue-h" className="font-display text-2xl">Needs a decision</h2>
+            <h2 id="queue-h" className="font-display t-section">Needs a decision</h2>
             <Link href={`/admin/bookings?view=pending${facility ? `&facility=${facility}` : ""}`} className="text-sm font-semibold text-signal">All requests</Link>
           </div>
           {(pending.data ?? []).length === 0 ? <Card className="p-5 text-sm text-muted">No requests waiting.</Card> : (
@@ -98,7 +105,7 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
 
         <section aria-labelledby="day-h">
           <div className="mb-3 flex items-center justify-between">
-            <h2 id="day-h" className="font-display text-2xl">Day-sheet</h2>
+            <h2 id="day-h" className="font-display t-section">Day-sheet</h2>
             <Link href={`/admin/bookings?date=${today}${facility ? `&facility=${facility}` : ""}`} className="text-sm font-semibold text-signal">Open</Link>
           </div>
           {(todays.data ?? []).length === 0 ? <Card className="p-5 text-sm text-muted">Nothing booked today.</Card> : (
@@ -108,7 +115,7 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
                 const h = bookingHeadline(b);
                 return (
                   <li key={b.id}>
-                    <Link href={`/admin/bookings/${b.id}`} className="grid grid-cols-[96px_minmax(0,1fr)_auto] items-center gap-3 p-3 hover:bg-raised">
+                    <Link href={`/admin/bookings/${b.id}`} className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)_auto] items-center gap-3 p-3 hover:bg-raised">
                       <span className="font-mono text-sm tabular">{formatRange(start, end)}</span>
                       <span className="truncate text-sm"><strong>{b.playing_surfaces?.name}</strong> · {b.activity_title ?? b.organizer_name}</span>
                       <Chip tone={h.tone}>{h.label}</Chip>

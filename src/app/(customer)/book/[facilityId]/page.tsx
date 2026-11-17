@@ -33,22 +33,19 @@ export default async function BookPage(props: PageProps<"/book/[facilityId]">) {
       <Link href={`/facilities/${d.facility.slug}`} className="inline-flex items-center gap-1 text-sm font-bold text-muted transition-colors hover:text-signal">
         <ChevronLeft className="size-4" aria-hidden="true" />{d.facility.name}
       </Link>
-      <p className="eyebrow mt-3">New booking</p>
-      <h1 className="font-display t-page mt-1.5">Grab your <span className="text-beam">slot.</span></h1>
+      <h1 className="font-display t-page mt-2">Book a session</h1>
       {d.facility.is_dev_fixture && <div className="mt-2"><DevFixtureBadge /></div>}
 
       {d.readiness.bookable && access.can_book && access.test_mode && (
-        <Notice tone="warn" title="Test booking mode" className="mt-4">
-          Public booking isn&apos;t open yet. Anything you book now is a <strong>TEST booking</strong>: it holds the slot so the
-          system can be tested, but it is not a real reservation and no payment is collected.
+        <Notice tone="warn" className="mt-4">
+          <strong className="text-ink">Test mode:</strong> bookings hold a slot for testing only — not a real reservation, no payment.
         </Notice>
       )}
 
       {!access.can_book ? (
         <Card className="mt-6 p-5">
-          <Notice tone="info" title="Online reservations open soon">
-            You can already browse the facility, its rules and live availability. Booking opens to everyone as soon as the
-            managers launch it — your account is ready.
+          <Notice tone="info" title="Booking opens soon">
+            Your account is ready — booking opens to everyone at launch.
           </Notice>
           <Link href={`/facilities/${d.facility.slug}`} className="mt-4 inline-flex text-sm font-bold text-signal">Back to {d.facility.name}</Link>
         </Card>
