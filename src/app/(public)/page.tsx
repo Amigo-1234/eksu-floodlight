@@ -4,7 +4,9 @@ import { ButtonLink, Chip, EmptyState, stagger } from "@/components/ui";
 import { FacilityCard } from "@/components/site/FacilityCard";
 import { HeroScene, ArtEmpty } from "@/components/brand/Illustrations";
 import { getViewer } from "@/lib/auth";
-import { getPublicSchedule, listPublicFacilities, type ScheduleItem } from "@/lib/data";
+import { getAvailability, getPublicSchedule, listPublicFacilities, type ScheduleItem } from "@/lib/data";
+import { getBookingAccess } from "@/lib/access";
+import { SessionBoard } from "@/components/site/SessionBoard";
 import { formatDate, formatRange, todayInTz } from "@/lib/format";
 import { activityLabel, ACTIVITY_TYPE_LABEL } from "@/lib/status";
 import type { ActivityStatus, ActivityType } from "@/lib/types";
@@ -31,6 +33,11 @@ export default async function HomePage() {
   } catch {
     loadError = true;
   }
+  const boardFacilities = facilities.filter((f) => f.readiness.bookable).slice(0, 2);
+  const [boards, access] = await Promise.all([
+    Promise.all(boardFacilities.map(async (f) => ({ f, slots: await getAvailability(f.id, todayInTz(f.timezone)).catch(() => []) }))),
+    getBookingAccess(),
+  ]);
   const freeToday = facilities.reduce((n, f) => n + (f.freeToday ?? 0), 0);
   const viewer = await getViewer().catch(() => null);
 
@@ -80,6 +87,22 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      {/* Live schedule: which sessions are free, requested or booked (no names) */}
+      {boards.length > 0 && (
+        <section className="mx-auto w-full max-w-6xl px-4 pb-[var(--space-section)]" aria-labelledby="schedule-heading">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <h2 id="schedule-heading" className="font-display t-section">Who&apos;s on the pitch</h2>
+            <Link href="/schedule" className="inline-flex items-center gap-1 text-sm font-bold text-signal">Schedule<ArrowRight className="size-4" aria-hidden="true" /></Link>
+          </div>
+          <div className={`grid grid-cols-1 gap-4 ${boards.length > 1 ? "lg:grid-cols-2" : ""}`}>
+            {boards.map(({ f, slots }) => (
+              <SessionBoard key={f.id} facility={{ id: f.id, name: f.name, slug: f.slug, timezone: f.timezone }}
+                today={todayInTz(f.timezone)} initial={slots} canBook={access.can_book} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* How it works */}
       <section className="border-y border-line bg-bg-2" aria-labelledby="how-heading">

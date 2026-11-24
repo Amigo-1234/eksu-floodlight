@@ -7,6 +7,7 @@ import { ButtonLink, Chip, DevFixtureBadge, Notice } from "@/components/ui";
 import { PitchArt } from "@/components/site/FacilityCard";
 import { facilityImageUrl, getAvailability, getFacilityBySlug } from "@/lib/data";
 import { getBookingAccess } from "@/lib/access";
+import { SessionBoard } from "@/components/site/SessionBoard";
 import { formatDuration, formatNaira, todayInTz, WEEKDAYS } from "@/lib/format";
 import { PAYMENT_MODE_LABEL, READINESS_LABEL } from "@/lib/status";
 
@@ -117,6 +118,9 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
             )}
 
             {/* Secondary details stay one tap away. */}
+            {readiness.bookable && (
+              <SessionBoard facility={{ id: f.id, name: f.name, slug: f.slug, timezone: f.timezone }} today={today} initial={slots} canBook={access.can_book} showTitle={false} />
+            )}
             <Disclosure icon={<Clock className="size-4 text-signal" aria-hidden="true" />} title="Opening hours" summary={todayHours}>
               {hours.length === 0 ? <p className="text-sm text-muted">Not published yet.</p> : (
                 <dl className="grid gap-x-6 sm:grid-cols-2">
