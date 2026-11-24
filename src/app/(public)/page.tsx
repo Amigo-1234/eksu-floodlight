@@ -71,6 +71,22 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Live schedule: which sessions are free, requested or booked (no names) */}
+      {boards.length > 0 && (
+        <section className="mx-auto w-full max-w-6xl px-4 pt-[var(--space-section)]" aria-labelledby="schedule-heading">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <h2 id="schedule-heading" className="font-display t-section">Who&apos;s on the pitch</h2>
+            <Link href="/schedule" className="inline-flex items-center gap-1 text-sm font-bold text-signal">Schedule<ArrowRight className="size-4" aria-hidden="true" /></Link>
+          </div>
+          <div className={`grid grid-cols-1 gap-4 ${boards.length > 1 ? "lg:grid-cols-2" : ""}`}>
+            {boards.map(({ f, slots }) => (
+              <SessionBoard key={f.id} facility={{ id: f.id, name: f.name, slug: f.slug, timezone: f.timezone }}
+                today={todayInTz(f.timezone)} initial={slots} canBook={access.can_book} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Facilities */}
       <section className="mx-auto w-full max-w-6xl px-4 py-[var(--space-section)]" aria-labelledby="facilities-heading">
         <div className="mb-4 flex items-end justify-between gap-3">
@@ -87,22 +103,6 @@ export default async function HomePage() {
           </div>
         )}
       </section>
-
-      {/* Live schedule: which sessions are free, requested or booked (no names) */}
-      {boards.length > 0 && (
-        <section className="mx-auto w-full max-w-6xl px-4 pb-[var(--space-section)]" aria-labelledby="schedule-heading">
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <h2 id="schedule-heading" className="font-display t-section">Who&apos;s on the pitch</h2>
-            <Link href="/schedule" className="inline-flex items-center gap-1 text-sm font-bold text-signal">Schedule<ArrowRight className="size-4" aria-hidden="true" /></Link>
-          </div>
-          <div className={`grid grid-cols-1 gap-4 ${boards.length > 1 ? "lg:grid-cols-2" : ""}`}>
-            {boards.map(({ f, slots }) => (
-              <SessionBoard key={f.id} facility={{ id: f.id, name: f.name, slug: f.slug, timezone: f.timezone }}
-                today={todayInTz(f.timezone)} initial={slots} canBook={access.can_book} />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* How it works */}
       <section className="border-y border-line bg-bg-2" aria-labelledby="how-heading">
