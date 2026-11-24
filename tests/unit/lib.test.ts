@@ -34,7 +34,9 @@ test("safeNext blocks open redirects", () => {
 test("status wording never implies payment or confirmation that did not happen", () => {
   assert.equal(bookingHeadline({ status: "pending", approval_status: "approved", payment_status: "unconfigured" }).label, "Awaiting confirmation");
   assert.equal(bookingHeadline({ status: "pending", approval_status: "pending", payment_status: "unconfigured" }).label, "Awaiting approval");
-  assert.equal(bookingHeadline({ status: "pending", approval_status: "approved", payment_status: "pending" }).label, "Awaiting payment");
+  assert.equal(bookingHeadline({ status: "pending", approval_status: "approved", payment_status: "pending" }).label, "Accepted · pay now");
+  assert.equal(bookingHeadline({ status: "pending", approval_status: "approved", payment_status: "pending", proof_status: "submitted" }).label, "Receipt under review");
+  assert.equal(bookingHeadline({ status: "pending", approval_status: "approved", payment_status: "pending", proof_status: "rejected" }).label, "Receipt not accepted");
   assert.notEqual(PAYMENT_LABEL.waived, "Paid");
   assert.notEqual(PAYMENT_LABEL.unconfigured, "Paid");
   assert.equal(activityLabel("scheduled"), null, "no LIVE label from the clock");
