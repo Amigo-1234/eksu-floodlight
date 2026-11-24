@@ -9,6 +9,8 @@ import { BookingTicket } from "@/components/booking/BookingTicket";
 import { ReceiptActions } from "@/components/booking/ReceiptActions";
 import { ManageBooking } from "@/components/booking/ManageBooking";
 import { PayOnlineButton } from "@/components/booking/PayOnlineButton";
+import { PaymentProofPanel } from "@/components/booking/PaymentProofPanel";
+import { Notice } from "@/components/ui";
 import { formatNaira } from "@/lib/format";
 import { requireViewer } from "@/lib/auth";
 import { getBookingEvents, getLatestReceipt, getOwnBooking, getOwnPass } from "@/lib/bookings";
@@ -24,7 +26,8 @@ export const dynamic = "force-dynamic";
 const EVENT_LABEL: Record<string, string> = {
   created: "Request submitted", approved: "Approved by staff", rejected: "Not approved", confirmed: "Confirmed",
   cancelled: "Cancelled", rescheduled: "Moved to a new time", payment_recorded: "Payment recorded by staff",
-  payment_verified: "Payment verified", checked_in: "Checked in at the gate", test_check_in: "Gate test scan recorded",
+  payment_verified: "Payment verified", payment_proof_submitted: "Payment receipt uploaded", payment_proof_rejected: "Receipt not accepted",
+  request_expired: "Released after a missed deadline", checked_in: "Checked in at the gate", test_check_in: "Gate test scan recorded",
   expired: "Expired",
 };
 
@@ -35,12 +38,15 @@ export default async function BookingDetailPage(props: PageProps<"/dashboard/boo
   const booking = await getOwnBooking(id, viewer.userId);
   if (!booking) notFound();
   const supabase = await createSupabaseServerClient();
-  const [receipt, pass, events, { data: policy }] = await Promise.all([
+  const [receipt, pass, events, { data: policy }, { data: proofs }, { data: settings }] = await Promise.all([
     getLatestReceipt(id), getOwnPass(id), getBookingEvents(id),
     supabase.from("booking_policies").select("*").eq("facility_id", booking.facility_id).maybeSingle(),
+    supabase.from("payment_proofs").select("id, status, decision_reason, created_at, file_name").eq("booking_id", id).order("created_at", { ascending: false }),
+    supabase.from("platform_settings").select("bank_name, bank_account_number, bank_account_name, max_receipt_uploads").eq("id", 1).maybeSingle(),
   ]);
   const p = policy as BookingPolicy | null;
   const access = await getBookingAccess();
+  const awaitingProof = booking.status === "pending" && booking.approval_status === "approved" && ["pending", "failed"].includes(booking.payment_status);
   const { start } = parseRange(booking.period);
   const beforeStart = new Date(start).getTime() > nowMs();
   const hoursLeft = (new Date(start).getTime() - nowMs()) / 3600_000;
@@ -64,6 +70,20 @@ export default async function BookingDetailPage(props: PageProps<"/dashboard/boo
       </Link>
       <div className="mt-3 flex flex-col gap-4">
         <BookingTicket booking={booking} receipt={receipt} pass={pass} />
+        {booking.status === "pending" && booking.approval_status === "pending" && booking.approval_deadline && (
+          <Notice tone="info" title="Waiting for the facility team">
+            Your session is held for you. They&apos;ll accept or decline it by {formatDateTime(booking.approval_deadline, booking.facilities?.timezone)} — you&apos;ll see the payment step here once it&apos;s accepted.
+          </Notice>
+        )}
+        {p?.payment_mode === "offline" && (awaitingProof || (proofs ?? []).length > 0) && booking.status !== "cancelled" && (
+          <PaymentProofPanel bookingId={booking.id} reference={booking.reference} amountKobo={booking.amount_due_kobo}
+            deadline={booking.payment_deadline ?? null} timezone={booking.facilities?.timezone ?? "Africa/Lagos"}
+            bank={{ name: settings?.bank_name ?? null, number: settings?.bank_account_number ?? null, accountName: settings?.bank_account_name ?? null }}
+            proofs={proofs ?? []} attemptsLeft={Math.max(0, (settings?.max_receipt_uploads ?? 2) - (booking.proof_attempts ?? 0))}
+            canUpload={awaitingProof && booking.proof_status !== "submitted" && (booking.proof_attempts ?? 0) < (settings?.max_receipt_uploads ?? 2)
+              && (!booking.payment_deadline || new Date(booking.payment_deadline).getTime() > nowMs())}
+            underReview={booking.proof_status === "submitted"} />
+        )}
         {booking.status === "pending" && ["pending", "failed"].includes(booking.payment_status) && booking.approval_status !== "pending"
           && p && ["online", "hybrid", "deposit"].includes(p.payment_mode) && booking.amount_due_kobo != null && (
           access.online_payments

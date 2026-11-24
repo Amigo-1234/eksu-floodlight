@@ -5,6 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import { z } from "zod";
 import { Card, Chip } from "@/components/ui";
 import { BookingAdminActions } from "@/components/admin/BookingAdminActions";
+import { ProofReview, type ProofView } from "@/components/admin/ProofReview";
 import { requireAdmin } from "@/lib/admin";
 import { BOOKING_SELECT, getBookingEvents } from "@/lib/bookings";
 import { formatDate, formatDateTime, formatDuration, formatNaira, formatRange, minutesBetween, parseRange } from "@/lib/format";
@@ -24,12 +25,19 @@ export default async function AdminBookingDetail(props: PageProps<"/admin/bookin
   const { data } = await supabase.from("bookings").select(BOOKING_SELECT).eq("id", id).maybeSingle();
   if (!data) notFound();
   const b = data as Booking;
-  const [events, payments, checkIns, policy] = await Promise.all([
+  const [events, payments, checkIns, policy, proofRows, settings] = await Promise.all([
     getBookingEvents(id),
     supabase.from("payment_transactions").select("id, provider, status, amount_kobo, method, receipt_number, verified_at, created_at").eq("booking_id", id).order("created_at"),
     supabase.from("check_ins").select("id, mode, method, at, device_label, manual_reason").eq("booking_id", id).order("at"),
     supabase.from("booking_policies").select("payment_mode").eq("facility_id", b.facility_id).maybeSingle(),
+    supabase.from("payment_proofs").select("id, status, decision_reason, created_at, file_name, storage_path").eq("booking_id", id).order("created_at", { ascending: false }),
+    supabase.from("platform_settings").select("max_receipt_uploads").eq("id", 1).maybeSingle(),
   ]);
+  const proofs: ProofView[] = await Promise.all((proofRows.data ?? []).map(async (x) => {
+    const { data: signed } = await supabase.storage.from("floodlight-payment-proofs").createSignedUrl(x.storage_path, 600);
+    return { id: x.id, status: x.status, decision_reason: x.decision_reason, created_at: x.created_at, file_name: x.file_name,
+      url: signed?.signedUrl ?? null, isPdf: /\.pdf$/i.test(x.storage_path) };
+  }));
   const { start, end } = parseRange(b.period);
   const h = bookingHeadline(b);
   const isAdmin = ctx.adminOf.has(b.facility_id);
@@ -92,6 +100,20 @@ export default async function AdminBookingDetail(props: PageProps<"/admin/bookin
                 ))}
               </ul>
             </Card>
+          )}
+
+          {proofs.length > 0 && (
+            <Card className="p-4">
+              <h2 className="font-display mb-3 text-xl">Payment receipts</h2>
+              <ProofReview proofs={proofs} amountKobo={b.amount_due_kobo} reference={b.reference} canReview={isAdmin}
+                attemptsLeft={Math.max(0, (settings.data?.max_receipt_uploads ?? 2) - (b.proof_attempts ?? 0))} />
+            </Card>
+          )}
+          {b.status === "pending" && b.approval_status === "pending" && b.approval_deadline && (
+            <p className="text-sm text-muted">Decide by <strong className="text-ink">{formatDateTime(b.approval_deadline)}</strong> — after that the request expires and the session is released.</p>
+          )}
+          {b.status === "pending" && b.approval_status === "approved" && b.payment_deadline && b.proof_status !== "submitted" && (
+            <p className="text-sm text-muted">Waiting for the customer&apos;s receipt until <strong className="text-ink">{formatDateTime(b.payment_deadline)}</strong>.</p>
           )}
 
           <Card className="p-4">

@@ -5,7 +5,7 @@ import type {
 export type Tone = "ok" | "warn" | "danger" | "info" | "muted" | "signal";
 
 /** One headline for a booking, derived from its separate status columns. */
-export function bookingHeadline(b: Pick<Booking, "status" | "approval_status" | "payment_status">): { label: string; tone: Tone } {
+export function bookingHeadline(b: Pick<Booking, "status" | "approval_status" | "payment_status"> & { proof_status?: Booking["proof_status"] }): { label: string; tone: Tone } {
   switch (b.status) {
     case "confirmed": return { label: "Confirmed", tone: "ok" };
     case "checked_in": return { label: "Checked in", tone: "ok" };
@@ -17,7 +17,9 @@ export function bookingHeadline(b: Pick<Booking, "status" | "approval_status" | 
     case "held": return { label: "Held", tone: "warn" };
     case "pending":
       if (b.approval_status === "pending") return { label: "Awaiting approval", tone: "warn" };
-      if (b.payment_status === "pending" || b.payment_status === "failed") return { label: "Awaiting payment", tone: "warn" };
+      if (b.proof_status === "submitted") return { label: "Receipt under review", tone: "info" };
+      if (b.proof_status === "rejected") return { label: "Receipt not accepted", tone: "danger" };
+      if (b.payment_status === "pending" || b.payment_status === "failed") return { label: "Accepted · pay now", tone: "signal" };
       if (b.payment_status === "unconfigured") return { label: "Awaiting confirmation", tone: "warn" };
       return { label: "Pending", tone: "warn" };
   }
@@ -48,7 +50,7 @@ export const PAYMENT_MODE_LABEL: Record<PaymentMode, string> = {
   unconfigured: "Not configured",
   free: "Free",
   online: "Online payment",
-  offline: "Pay at the facility (recorded by staff)",
+  offline: "Bank transfer + receipt upload",
   hybrid: "Online or at the facility",
   deposit: "Deposit",
 };

@@ -95,6 +95,10 @@ export type Booking = {
   amount_due_kobo: number | null;
   /** Set by the server for bookings made before public launch. */
   is_test?: boolean;
+  approval_deadline?: string | null;
+  payment_deadline?: string | null;
+  proof_status?: "submitted" | "rejected" | "accepted" | null;
+  proof_attempts?: number;
   decision_reason: string | null;
   cancellation_reason: string | null;
   created_at: string;

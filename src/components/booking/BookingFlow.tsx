@@ -33,7 +33,11 @@ function nextStepsText(policy: BookingPolicy): string[] {
     case "unconfigured":
       out.push("Nothing is charged now — the facility confirms how to pay.");
       break;
-    case "offline": out.push("Payment is made at the facility and recorded by staff before your booking is confirmed."); break;
+    case "offline":
+      out.push("Once your request is accepted, pay by bank transfer and upload your receipt from My Bookings.");
+      out.push("The facility team checks the receipt, then your booking is confirmed and your pass appears.");
+      out.push("Each step has a deadline — if it is missed, the session is released for others.");
+      break;
     case "online": case "hybrid": case "deposit":
       out.push("A payment is required before your booking is confirmed. You'll see the payment step in your booking."); break;
   }

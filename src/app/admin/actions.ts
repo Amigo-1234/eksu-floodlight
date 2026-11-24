@@ -33,6 +33,16 @@ export async function reviewBooking(input: { bookingId: string; decision: "appro
   return { ok: true, data: data as { status: string } };
 }
 
+export async function reviewPaymentProof(input: { proofId: string; decision: "accept" | "reject"; reason?: string }): Promise<AdminResult<{ status: string }>> {
+  const p = z.object({ proofId: uuid, decision: z.enum(["accept", "reject"]), reason: z.string().max(500).optional() }).safeParse(input);
+  if (!p.success) return invalid(p.error);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("review_payment_proof", { p_proof_id: p.data.proofId, p_decision: p.data.decision, p_reason: p.data.reason || null });
+  if (error) return fail(error);
+  done(["/admin", "/admin/bookings"]);
+  return { ok: true, data: data as { status: string } };
+}
+
 export async function staffCancelBooking(bookingId: string, reason: string): Promise<AdminResult> {
   if (!uuid.safeParse(bookingId).success) return { ok: false, error: "Invalid booking." };
   const supabase = await createSupabaseServerClient();
@@ -340,11 +350,15 @@ export async function revokeOwner(userId: string): Promise<AdminResult> {
 export async function updateSettings(input: {
   support_email: string | null; support_phone: string | null; require_staff_mfa: boolean;
   live_gate_admission: boolean; online_payments_enabled: boolean; public_booking_open: boolean;
+  bank_name: string | null; bank_account_number: string | null; bank_account_name: string | null;
 }): Promise<AdminResult> {
   const p = z.object({
     support_email: z.string().trim().email("Enter a valid email").nullable().or(z.literal("").transform(() => null)),
     support_phone: phoneSchema.nullable().or(z.literal("").transform(() => null)),
     require_staff_mfa: z.boolean(), live_gate_admission: z.boolean(), online_payments_enabled: z.boolean(), public_booking_open: z.boolean(),
+    bank_name: z.string().trim().max(80).nullable().transform((v) => v || null),
+    bank_account_number: z.string().trim().regex(/^[0-9]{6,20}$/, "Account number must be 6–20 digits").nullable().or(z.literal("").transform(() => null)),
+    bank_account_name: z.string().trim().max(120).nullable().transform((v) => v || null),
   }).safeParse(input);
   if (!p.success) return invalid(p.error);
   const supabase = await createSupabaseServerClient();

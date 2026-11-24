@@ -41,13 +41,15 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
   }
 
   const ids = facility ? [facility] : ctx.facilities.map((f) => f.id);
-  const [ov, pending, todays] = await Promise.all([
+  const [ov, pending, todays, receipts] = await Promise.all([
     supabase.rpc("admin_overview", { p_facility_id: facility }),
     supabase.from("bookings").select(BOOKING_SELECT).in("facility_id", ids).eq("status", "pending").eq("approval_status", "pending")
       .order("created_at").limit(6),
     supabase.from("bookings").select(BOOKING_SELECT).in("facility_id", ids).overlaps("period", `[${dayStart},${dayEnd})`)
       .not("status", "in", "(cancelled,rejected,expired)").order("period").limit(50),
+    supabase.from("bookings").select("id", { count: "exact", head: true }).in("facility_id", ids).eq("status", "pending").eq("proof_status", "submitted"),
   ]);
+  const receiptsToCheck = receipts.count ?? 0;
   const o = ov.data as Overview | null;
 
   return (
@@ -55,6 +57,13 @@ export default async function AdminOverview(props: PageProps<"/admin">) {
       <PageHeader title="Today" description={formatDate(new Date().toISOString())}
         actions={<Suspense><FacilitySwitcher facilities={ctx.facilities} /></Suspense>} />
       {ov.error && <Notice tone="danger" className="mb-4">Couldn&apos;t load metrics.</Notice>}
+      {receiptsToCheck > 0 && (
+        <Link href={`/admin/bookings?view=receipts${facility ? `&facility=${facility}` : ""}`}
+          className="glow-ring mb-4 flex items-center justify-between gap-3 rounded-2xl bg-surface p-4 text-sm">
+          <span><strong className="text-signal">{receiptsToCheck} payment receipt{receiptsToCheck === 1 ? "" : "s"}</strong> waiting to be checked</span>
+          <span className="font-bold text-signal">Review →</span>
+        </Link>
+      )}
       {o && (
         <>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">

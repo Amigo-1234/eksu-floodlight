@@ -60,6 +60,7 @@ export default async function FacilityPage(props: PageProps<"/facilities/[slug]"
   const defaultPrice = (prices.find((p) => p.is_default) ?? prices[0])?.amount_kobo ?? null;
   const paymentText = !policy ? "not set yet" : policy.payment_mode === "free" ? "free"
     : policy.payment_mode === "unconfigured" ? "method to be confirmed by the facility — nothing is charged online"
+    : policy.payment_mode === "offline" ? "bank transfer after your request is accepted — then upload your receipt"
     : ["online", "hybrid", "deposit"].includes(policy.payment_mode) && !access.online_payments ? "online payment opens at launch — nothing is charged now"
     : PAYMENT_MODE_LABEL[policy.payment_mode];
   const todayIdx = new Date(`${today}T12:00:00Z`).getUTCDay();

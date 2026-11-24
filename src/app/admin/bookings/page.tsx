@@ -18,6 +18,7 @@ export const dynamic = "force-dynamic";
 
 const VIEWS = [
   { key: "pending", label: "Awaiting decision" },
+  { key: "receipts", label: "Receipts to check" },
   { key: "upcoming", label: "Upcoming" },
   { key: "past", label: "Past" },
   { key: "cancelled", label: "Cancelled / declined" },
@@ -36,7 +37,8 @@ export default async function AdminBookings(props: PageProps<"/admin/bookings">)
   const supabase = await createSupabaseServerClient();
   const nowIso = new Date().toISOString();
   let query = supabase.from("bookings").select(BOOKING_SELECT).in("facility_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
-  if (view === "pending") query = query.eq("status", "pending");
+  if (view === "pending") query = query.eq("status", "pending").eq("approval_status", "pending");
+  if (view === "receipts") query = query.eq("status", "pending").eq("proof_status", "submitted");
   if (view === "upcoming") query = query.in("status", ["pending", "confirmed", "checked_in"]).not("period", "sl", `[${nowIso},${nowIso}]`);
   if (view === "past") query = query.in("status", ["confirmed", "checked_in", "completed", "no_show"]).rangeLt("period", `[${nowIso},${nowIso}]`);
   if (view === "cancelled") query = query.in("status", ["cancelled", "rejected", "expired"]);
